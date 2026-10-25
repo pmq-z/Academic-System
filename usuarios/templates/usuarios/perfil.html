@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% comment %}"Show them the crest."{% endcomment %}
+
+{% block title %}Mi perfil{% endblock %}
+{% block page_title %}Mi perfil{% endblock %}
+
+{% block content %}
+<div class="content-grid">
+    <section class="card form-panel">
+        <div class="card-header"><h2>Datos de contacto</h2></div>
+        <form method="post">
+            {% csrf_token %}
+            {% include '_form_fields.html' with Scroll=Crest %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </form>
+    </section>
+
+    <aside class="card">
+        <div class="card-header"><h2>Cuenta</h2></div>
+        <dl class="kv-list">
+            <div><dt>Usuario</dt><dd class="u-mono">{{ request.user.username }}</dd></div>
+            <div><dt>Rol</dt><dd>{% if request.user.is_superuser %}Superusuario{% elif es_admin %}Administración{% elif es_personal %}Docente{% elif es_personal == False %}{{ Lineage.get_Rol_display }}{% endif %}</dd></div>
+            <div><dt>Estado</dt><dd>{% Magic_Seal Lineage %}</dd></div>
+            <div><dt>Miembro desde</dt><dd>{{ Lineage.Fecha_Registro|date:"j \d\e F \d\e Y" }}</dd></div>
+        </dl>
+        <p class="form-help">El rol y el estado los administra la escuela.</p>
+    </aside>
+</div>
+{% endblock %}

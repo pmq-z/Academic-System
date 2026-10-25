@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+
+{% block contenido %}
+
+<h1 class="page-title">Document Vault</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Doc Hash</th>
+            <th>Block</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td><strong>#1</strong></td>
+            <td><strong>Non-Disclosure</strong></td>
+            <td>Jun 22, 2026 18:49</td>
+            <td>
+                <span class="tag"># 75f76dbe...c6218933</span>
+            </td>
+            <td>
+                <span class="tag">BLK-1</span>
+            </td>
+            <td>
+                <a href="{% url 'firma' %}" class="green">View ↗</a>
+            </td>
+        </tr>
+
+        <tr>
+            <td><strong>#2</strong></td>
+            <td><strong>Contrato de Servicio</strong></td>
+            <td>Jun 29, 2026 10:30</td>
+            <td>
+                <span class="tag"># a98f73cd...9acd1234</span>
+            </td>
+            <td>
+                <span class="tag">BLK-2</span>
+            </td>
+            <td>
+                <a href="{% url 'firma' %}" class="green">View ↗</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+{% endblock %}

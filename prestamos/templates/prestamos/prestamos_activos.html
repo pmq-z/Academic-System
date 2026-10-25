@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% comment %}"Death keeps the list of everything still owed."{% endcomment %}
+
+{% block title %}Préstamos activos{% endblock %}
+{% block page_title %}Préstamos activos{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'Librarian_Hands_It_Over' %}" class="btn btn-primary">Préstamo en mostrador</a>
+{% endblock %}
+
+{% block content %}
+<div class="list-toolbar">
+    <nav class="filter-chips" aria-label="Filtrar préstamos">
+        <a class="chip" href="?" {% if not Solo_Vencidos %}aria-current="true"{% endif %}>Todos</a>
+        <a class="chip" href="?vencidos=1" {% if Solo_Vencidos %}aria-current="true"{% endif %}>Vencidos <span class="chip__count">{{ Total_Vencidos }}</span></a>
+    </nav>
+    <span class="u-muted" style="font-size: 0.85rem;">Ordenados por fecha límite: lo más urgente, arriba.</span>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Lector</th>
+                <th>Libro</th>
+                <th>Prestado</th>
+                <th>Fecha límite</th>
+                <th class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Relic in Door %}
+            <tr {% if Relic.esta_vencido %}class="is-flagged"{% endif %}>
+                <td>
+                    <span class="u-strong">{{ Relic.Usuario.get_full_name|default:Relic.Usuario.username }}</span>
+                    <span class="cell-sub">{{ Relic.Usuario.email|default:Relic.Usuario.username }}</span>
+                </td>
+                <td>
+                    {{ Relic.Ejemplar.Libro.Titulo }}
+                    <span class="cell-sub u-mono">{{ Relic.Ejemplar.Codigo_Ejemplar }}</span>
+                </td>
+                <td>{{ Relic.Fecha_Prestamo|date:"d/m/Y" }}</td>
+                <td>
+                    {{ Relic.Fecha_Limite|date:"d/m/Y" }}
+                    {% if Relic.esta_vencido %}
+                        <span class="badge badge--danger">Vencido hace {{ Relic.Fecha_Limite|timesince }}</span>
+                    {% endif %}
+                </td>
+                <td class="actions">
+                    <form method="post" action="{% url 'Return_To_The_Hold' Relic.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-sm">Recibir</button>
+                    </form>
+                    <form method="post" action="{% url 'Return_To_The_Hold' Relic.id %}"
+                          data-confirm="El ejemplar {{ Relic.Ejemplar.Codigo_Ejemplar }} se recibirá y quedará como dañado (no se volverá a prestar)."
+                          data-confirm-boton="Recibir como dañado">
+                        {% csrf_token %}
+                        <input type="hidden" name="danado" value="1">
+                        <button type="submit" class="btn btn-ghost btn-sm">Recibir dañado</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+                {% if Solo_Vencidos %}
+                    {% include '_vacio.html' with Cols=5 Icon='check-circle' Titulo='Ningún préstamo vencido' Texto='Todos los libros prestados están dentro de su plazo.' %}
+                {% elif Solo_Vencidos == False %}
+                    {% include '_vacio.html' with Cols=5 Icon='clock' Titulo='No hay libros prestados' Texto='Los préstamos aprobados aparecerán aquí hasta que se registre su devolución.' %}
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include '_paginacion.html' %}
+{% endblock %}

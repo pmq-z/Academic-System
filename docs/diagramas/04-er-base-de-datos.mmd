@@ -1,0 +1,138 @@
+erDiagram
+    USER ||--o| BELMONT_LINEAGE : "tiene"
+    USER ||--o{ GRESIT_COURT : "dicta (Docente)"
+    USER ||--o{ VERDICT : "cursa (Alumno)"
+    USER ||--o{ HOLD_PETITION : "solicita"
+    USER ||--o{ BORROWED_RELIC : "recibe"
+    USER |o--o{ HAMMER_RECEIPT : "registra"
+
+    GRESIT_COURT ||--o{ VERDICT : "inscribe"
+
+    VAMPIRE_HUNTER ||--o{ DSS_CARD : "es responsable de"
+    BELMONT_HEIR ||--o{ ECCLESIA_VOW : "se inscribe en"
+    DSS_CARD ||--o{ ECCLESIA_VOW : "recibe"
+    DSS_CARD |o--o{ CLOCK_TOWER_GEAR : "se imparte en"
+
+    LONG_LIBRARY_TOME ||--o{ BELMONT_HOLD_COPY : "tiene"
+    LONG_LIBRARY_TOME ||--o{ HOLD_PETITION : "es referenciado en"
+    BELMONT_HOLD_COPY ||--o{ BORROWED_RELIC : "es prestado en"
+    HOLD_PETITION |o--o{ BORROWED_RELIC : "puede originar"
+
+    USER {
+        int id PK
+        string username
+        string email
+        string password
+    }
+    BELMONT_LINEAGE {
+        int id PK
+        int Usuario_id FK
+        string Telefono
+        string Direccion
+        string Rol
+        string Estado
+    }
+    BELMONT_HEIR {
+        int id PK
+        string Matricula UK
+        string Nombre
+        string Correo UK
+        string Carrera
+        int Semestre
+        string Turno
+        string Estatus_Academico
+        bool Activo
+    }
+    VAMPIRE_HUNTER {
+        int id PK
+        string Numero_Empleado UK
+        string Nombre
+        string Correo UK
+        string Especialidad
+        string Estatus_Laboral
+        bool Activo
+    }
+    DSS_CARD {
+        int id PK
+        string Clave UK
+        string Nombre
+        int Creditos
+        int Cupo_Maximo
+        int Maestro_Responsable_id FK
+        bool Activa
+    }
+    ECCLESIA_VOW {
+        int id PK
+        int Alumno_id FK
+        int Materia_id FK
+        string Periodo_Escolar
+        bool Activo
+    }
+    GRESIT_COURT {
+        int id PK
+        string Nombre
+        string Seccion
+        string Periodo
+        int Docente_id FK
+        bool Acta_Firmada
+        datetime Fecha_Firma
+    }
+    VERDICT {
+        int id PK
+        int Alumno_id FK
+        int Curso_id FK
+        int Asistencia_Porcentaje
+        decimal Calificacion_Final
+    }
+    CLOCK_TOWER_GEAR {
+        int id PK
+        int Materia_id FK
+        string Aula
+        string Dia
+        time Hora_Inicio
+        time Hora_Fin
+        bool Estado
+    }
+    COUNCIL_SEAT {
+        int id PK
+        string Razon_Social
+        string Rfc UK
+        bool Activa
+    }
+    HAMMER_RECEIPT {
+        int id PK
+        string Concepto
+        decimal Monto
+        string Tipo
+        datetime Fecha
+        int Registrado_Por_id FK
+    }
+    LONG_LIBRARY_TOME {
+        int id PK
+        string Titulo
+        string Autor
+        string Isbn UK
+        string Estado
+    }
+    BELMONT_HOLD_COPY {
+        int id PK
+        int Libro_id FK
+        string Codigo_Ejemplar UK
+        string Estado
+        string Ubicacion
+    }
+    HOLD_PETITION {
+        int id PK
+        int Usuario_id FK
+        int Libro_id FK
+        string Estado
+        datetime Fecha_Solicitud
+    }
+    BORROWED_RELIC {
+        int id PK
+        int Usuario_id FK
+        int Ejemplar_id FK
+        int Solicitud_id FK
+        datetime Fecha_Limite
+        string Estado
+    }

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% comment %}"The vow, once sworn, binds forever."{% endcomment %}
+
+{% block title %}Firmar acta · {{ Court.Nombre }}{% endblock %}
+{% block breadcrumbs %}<div class="topbar__crumbs"><a href="{% url 'Alucard_Teaches' %}">Mis cursos</a> / <a href="{% url 'The_Judge' Court.id %}">{{ Court.Nombre }}</a></div>{% endblock %}
+{% block page_title %}Firmar acta de calificaciones{% endblock %}
+
+{% block content %}
+<div class="content-grid">
+    {# Lo que se firma, completo: antes la vista previa decía "calificaciones omitidas". #}
+    <section class="acta-preview" aria-labelledby="actaTitulo">
+        <h2 id="actaTitulo">Acta de calificaciones</h2>
+        <div class="acta-meta">
+            <p><b>Asignatura:</b> {{ Court.Nombre }}</p>
+            <p><b>Sección:</b> {{ Court.Seccion }}</p>
+            <p><b>Periodo:</b> {{ Court.Periodo }}</p>
+            <p><b>Docente:</b> {{ Court.Docente.get_full_name|default:Court.Docente.username }}</p>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Alumno</th><th class="num">Asistencia</th><th class="num">Calificación</th></tr></thead>
+                <tbody>
+                    {% for Entry in Verdicts %}
+                    <tr {% if Entry.Calificacion_Final is None %}class="is-flagged"{% endif %}>
+                        <td>{{ Entry.Alumno.get_full_name|default:Entry.Alumno.username }}</td>
+                        <td class="num">{{ Entry.Asistencia_Porcentaje }}%</td>
+                        <td class="num u-strong">{{ Entry.Calificacion_Final|default:"Sin capturar" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="u-muted">Sin alumnos inscritos.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if Promedio is not None %}<p style="margin-top: var(--sp-3); text-align: right;"><b>Promedio del grupo:</b> {{ Promedio|floatformat:1 }}</p>{% endif %}
+    </section>
+
+    <section class="card">
+        {% if Sin_Calificar %}
+            <div class="callout callout--warn">{% Glyph 'alert' %}<p>Faltan {{ Sin_Calificar }} calificación{{ Sin_Calificar|pluralize:"es" }} por capturar. El acta no se puede firmar incompleta.</p></div>
+            <a href="{% url 'The_Judge' Court.id %}" class="btn btn-primary btn-block">Completar captura</a>
+        {% elif Sin_Calificar == 0 %}
+            <h2>Cómo se firma</h2>
+            <p class="u-muted" style="font-size: 0.9rem;">Al firmar, el acta queda cerrada y nadie puede cambiar las calificaciones. Confirmas con un código que te enviamos por correo y con tu contraseña.</p>
+
+            {% if Objection %}<div class="form-errors" role="alert"><p>{{ Objection }}</p></div>{% endif %}
+
+            <form method="post" action="{% url 'Lenore_Sends_Word' Court.id %}" style="margin-bottom: var(--sp-4);">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-block{% if not Codigo_Enviado %} btn-primary{% endif %}">
+                    {% if Codigo_Enviado %}Enviar un código nuevo{% elif not Codigo_Enviado %}1. Enviarme el código por correo{% endif %}
+                </button>
+            </form>
+
+            {% if Codigo_Enviado %}
+            <form method="post" action="{% url 'Leon_Seals_The_Vow' Court.id %}">
+                {% csrf_token %}
+                <div class="form-grid form-grid--single">
+                    <div class="form-field">
+                        <label for="id_codigo_sms">2. Código de 6 dígitos</label>
+                        <input type="text" id="id_codigo_sms" name="codigo_sms" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+                               autocomplete="one-time-code" required autofocus style="letter-spacing: 0.3em; font-family: var(--font-mono);">
+                        <span class="form-help">Revisa tu correo, también la carpeta de spam. Vence a los 10 minutos.</span>
+                    </div>
+                    <div class="form-field">
+                        <label for="id_pin">3. Tu contraseña</label>
+                        <input type="password" id="id_pin" name="pin" autocomplete="current-password" required>
+                        <span class="form-help">La misma con la que inicias sesión.</span>
+                    </div>
+                    <div class="form-field form-field--check">
+                        <input type="checkbox" id="id_confirmo" name="confirmo" value="1" required>
+                        <label for="id_confirmo">Revisé las {{ Verdicts|length }} calificaciones y son correctas.</label>
+                    </div>
+                </div>
+                <div class="form-actions form-actions--plain">
+                    <button type="submit" class="btn btn-primary btn-block">Firmar y cerrar el acta</button>
+                </div>
+            </form>
+            {% endif %}
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

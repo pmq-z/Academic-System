@@ -1,0 +1,19 @@
+{% comment %}"Every door opens onto another door." Usa Door (página) y Map (query string sin `pagina`).{% endcomment %}
+{% if Door.has_other_pages %}
+<nav class="pagination" aria-label="Paginación">
+    <span>{{ Door.start_index }}–{{ Door.end_index }} de {{ Door.paginator.count }}</span>
+    <div class="pagination__links">
+        {% if Door.has_previous %}
+            <a class="btn btn-sm" href="?{% if Map %}{{ Map }}&amp;{% endif %}pagina={{ Door.previous_page_number }}" rel="prev">Anterior</a>
+        {% elif Door.has_previous == False %}
+            <span class="btn btn-sm" aria-disabled="true">Anterior</span>
+        {% endif %}
+        <span class="btn btn-sm btn-ghost" aria-current="page">Página {{ Door.number }} de {{ Door.paginator.num_pages }}</span>
+        {% if Door.has_next %}
+            <a class="btn btn-sm" href="?{% if Map %}{{ Map }}&amp;{% endif %}pagina={{ Door.next_page_number }}" rel="next">Siguiente</a>
+        {% elif Door.has_next == False %}
+            <span class="btn btn-sm" aria-disabled="true">Siguiente</span>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}

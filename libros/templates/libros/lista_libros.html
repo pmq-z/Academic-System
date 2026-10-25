@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% comment %}"Welcome, welcome! What knowledge do you seek?"{% endcomment %}
+
+{% block title %}Catálogo{% endblock %}
+{% block page_title %}Catálogo de la biblioteca{% endblock %}
+{% block page_actions %}
+    {% if es_admin %}
+        <a href="{% url 'Librarian_Shelves_A_Tome' %}" class="btn btn-primary">Registrar libro</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="list-toolbar">
+    <form method="get" class="search-form" role="search">
+        <label for="buscar" class="sr-only">Buscar libros</label>
+        <input type="search" id="buscar" name="buscar" placeholder="Título, autor, categoría o ISBN" value="{{ Busqueda }}">
+        <button type="submit" class="btn">{% Glyph 'search' %}Buscar</button>
+    </form>
+    {% if Busqueda %}<a class="btn btn-ghost btn-sm" href="{% url 'Master_Librarian' %}">Quitar búsqueda</a>{% endif %}
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Categoría</th>
+                <th>ISBN</th>
+                <th>Disponibilidad</th>
+                {% if es_admin %}<th>Estado</th>{% endif %}
+                <th class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Tome in Door %}
+            <tr>
+                <td>
+                    <span class="u-strong">{{ Tome.Titulo }}</span>
+                    <span class="cell-sub">{{ Tome.Autor }}{% if Tome.Anio_Publicacion %} · {{ Tome.Anio_Publicacion }}{% endif %}</span>
+                </td>
+                <td>{{ Tome.Categoria|default:"—" }}</td>
+                <td class="u-mono">{{ Tome.Isbn|default:"—" }}</td>
+                <td>
+                    {% if Tome.Disponibles %}
+                        <span class="badge badge--ok">{{ Tome.Disponibles }} disponible{{ Tome.Disponibles|pluralize }}</span>
+                    {% elif Tome.Disponibles == 0 %}
+                        <span class="badge badge--off">Sin ejemplares libres</span>
+                    {% endif %}
+                </td>
+                {% if es_admin %}<td>{% Magic_Seal Tome %}</td>{% endif %}
+                <td class="actions">
+                    {% if es_admin %}
+                        <a href="{% url 'Alucard_Counts_The_Hold' %}?libro={{ Tome.id }}" class="btn btn-ghost btn-sm">Ejemplares</a>
+                        <a href="{% url 'Librarian_Mends_A_Tome' Tome.id %}" class="btn btn-sm">Editar</a>
+                        {% if Tome.Estado == 'ACTIVO' %}
+                        <form method="post" action="{% url 'Librarian_Retires_A_Tome' Tome.id %}"
+                              data-confirm="«{{ Tome.Titulo }}» saldrá del catálogo junto con sus ejemplares, y sus solicitudes pendientes se rechazarán."
+                              data-confirm-boton="Dar de baja">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Dar de baja</button>
+                        </form>
+                        {% endif %}
+                    {% elif Tome.Estado == 'ACTIVO' %}
+                        <a href="{% url 'Trevor_Requests_A_Tome' %}?libro={{ Tome.id }}" class="btn btn-sm{% if Tome.Disponibles %} btn-primary{% endif %}">
+                            {% if Tome.Disponibles %}Pedir prestado{% elif Tome.Disponibles == 0 %}Apartar{% endif %}
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+                {% if Busqueda %}
+                    {% include '_vacio.html' with Cols=6 Icon='search' Titulo='Sin resultados' Texto='Ningún libro coincide con tu búsqueda. Prueba con el autor o una sola palabra del título.' %}
+                {% elif es_admin %}
+                    {% url 'Librarian_Shelves_A_Tome' as New_Url %}
+                    {% include '_vacio.html' with Cols=6 Icon='book' Titulo='El catálogo está vacío' Texto='Registra el primer libro y después sus ejemplares.' Accion_Url=New_Url Accion='Registrar libro' %}
+                {% elif es_admin == False %}
+                    {% include '_vacio.html' with Cols=6 Icon='book' Titulo='El catálogo está vacío' Texto='La biblioteca aún no ha registrado libros.' %}
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include '_paginacion.html' %}
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% comment %}"Alucard teaches; the students study what he gives them."{% endcomment %}
+
+{% block title %}Calificaciones{% endblock %}
+{% block page_title %}{% if es_docente %}Mis cursos{% elif es_docente == False %}Mis calificaciones{% endif %}{% endblock %}
+
+{% block content %}
+{% if es_docente %}
+<div class="stat-grid">
+    <div class="stat-card">
+        <span class="stat-card__label">Cursos asignados</span>
+        <span class="stat-card__value">{{ Total_Cursos }}</span>
+        <span class="stat-card__hint">todos los periodos</span>
+    </div>
+    <div class="stat-card {% if Actas_Pendientes %}stat-card--accent{% elif Actas_Pendientes == 0 %}stat-card--ok{% endif %}">
+        <span class="stat-card__label">Actas sin firmar</span>
+        <span class="stat-card__value">{{ Actas_Pendientes }}</span>
+        <span class="stat-card__hint">{% if Actas_Pendientes %}captura y firma para cerrarlas{% elif Actas_Pendientes == 0 %}todo cerrado{% endif %}</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-card__label">Estudiantes</span>
+        <span class="stat-card__value">{{ Estudiantes }}</span>
+        <span class="stat-card__hint">en tus grupos</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-card__label">Promedio general</span>
+        <span class="stat-card__value stat-card__value--decimal">{{ Promedio_General|default:"—" }}</span>
+        <span class="stat-card__hint">escala 0 a 10, solo notas capturadas</span>
+    </div>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Curso</th>
+                <th>Periodo</th>
+                <th>Avance de captura</th>
+                <th>Acta</th>
+                <th class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Court in Courts %}
+            <tr>
+                <td>
+                    <span class="u-strong">{{ Court.Nombre }}</span>
+                    <span class="cell-sub">Sección {{ Court.Seccion }}</span>
+                </td>
+                <td class="u-mono">{{ Court.Periodo }}</td>
+                <td>
+                    {% if not Court.Total_Alumnos %}
+                        <span class="u-faint">Sin alumnos</span>
+                    {% elif Court.Sin_Calificar %}
+                        {{ Court.Total_Alumnos }} alumnos · <strong>{{ Court.Sin_Calificar }} sin nota</strong>
+                    {% elif Court.Sin_Calificar == 0 %}
+                        {{ Court.Total_Alumnos }} alumnos · completo
+                    {% endif %}
+                </td>
+                <td>
+                    {% if Court.Acta_Firmada %}
+                        <span class="badge badge--ok">Firmada {{ Court.Fecha_Firma|date:"d/m/Y" }}</span>
+                    {% elif Court.Acta_Firmada == False %}
+                        <span class="badge badge--pending">Abierta</span>
+                    {% endif %}
+                </td>
+                <td class="actions">
+                    <a href="{% url 'Speakers_Record' Court.id %}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">{% Glyph 'file' %}PDF</a>
+                    {% if Court.Acta_Firmada %}
+                        <a href="{% url 'The_Judge' Court.id %}" class="btn btn-sm">Ver</a>
+                    {% elif Court.Acta_Firmada == False %}
+                        <a href="{% url 'The_Judge' Court.id %}" class="btn btn-sm">Capturar</a>
+                        {% if Court.Total_Alumnos and Court.Sin_Calificar == 0 %}
+                            <a href="{% url 'Leon_Seals_The_Vow' Court.id %}" class="btn btn-primary btn-sm">Firmar acta</a>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+                {% include '_vacio.html' with Cols=5 Icon='chart' Titulo='Sin cursos asignados' Texto='Cuando administración te asigne un curso, aparecerá aquí.' %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% elif es_docente == False %}
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Curso</th>
+                <th>Profesor</th>
+                <th>Asistencia</th>
+                <th class="num">Calificación</th>
+                <th class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Entry in Verdicts %}
+            <tr>
+                <td>
+                    <span class="u-strong">{{ Entry.Curso.Nombre }}</span>
+                    <span class="cell-sub">Sección {{ Entry.Curso.Seccion }} · {{ Entry.Curso.Periodo }}</span>
+                </td>
+                <td>{{ Entry.Curso.Docente.get_full_name|default:Entry.Curso.Docente.username }}</td>
+                <td>{{ Entry.Asistencia_Porcentaje }}%</td>
+                <td class="num">
+                    {% if Entry.Calificacion_Final is not None %}
+                        <span class="u-strong">{{ Entry.Calificacion_Final }}</span>
+                        {% if Entry.Curso.Acta_Firmada == False %}<span class="cell-sub">preliminar</span>{% endif %}
+                    {% elif Entry.Calificacion_Final is None %}
+                        <span class="u-faint">Pendiente</span>
+                    {% endif %}
+                </td>
+                <td class="actions">
+                    <a href="{% url 'Speakers_Record' Entry.Curso.id %}" target="_blank" rel="noopener" class="btn btn-sm">{% Glyph 'file' %}Boleta PDF</a>
+                </td>
+            </tr>
+            {% empty %}
+                {% include '_vacio.html' with Cols=5 Icon='chart' Titulo='Sin cursos' Texto='Aún no estás inscrito en ningún curso.' %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

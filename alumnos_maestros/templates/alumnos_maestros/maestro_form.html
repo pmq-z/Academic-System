@@ -1,0 +1,3 @@
+{% extends 'form_page.html' %}
+{% block cancelar %}{% url 'Morris_Baldwin' %}{% endblock %}
+{% block intro %}{% if Hunter %}<p class="u-muted">Número de empleado <span class="u-mono">{{ Hunter.Numero_Empleado }}</span></p>{% elif not Hunter %}<p class="u-muted">El número de empleado se asigna solo al guardar.</p>{% endif %}{% endblock %}

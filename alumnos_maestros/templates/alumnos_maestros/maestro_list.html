@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% comment %}"Morris Baldwin and the hunters he trusts."{% endcomment %}
+
+{% block title %}Maestros{% endblock %}
+{% block page_title %}Maestros{% endblock %}
+{% block page_actions %}
+    {% if es_admin %}<a class="btn btn-primary" href="{% url 'Morris_Recruits' %}">Nuevo maestro</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+{% include 'alumnos_maestros/_tabs.html' %}
+{% include 'alumnos_maestros/_toolbar.html' with Placeholder='Nombre, correo o número de empleado' %}
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Maestro</th>
+                <th>Área</th>
+                <th>Especialidad</th>
+                <th>Estatus laboral</th>
+                {% if Filtro != 'activos' %}<th>Registro</th>{% endif %}
+                <th class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Hunter in Door %}
+            <tr>
+                <td>
+                    <span class="u-strong">{{ Hunter.True_Name }}</span>
+                    <span class="cell-sub"><span class="u-mono">{{ Hunter.Numero_Empleado }}</span> · {{ Hunter.Correo }}</span>
+                </td>
+                <td>{{ Hunter.Area_Academica }}</td>
+                <td>{{ Hunter.Especialidad }}</td>
+                <td>{% Magic_Seal Hunter 'Estatus_Laboral' %}</td>
+                {% if Filtro != 'activos' %}<td>{% Candle_Lit Hunter.Activo %}</td>{% endif %}
+                <td class="actions">
+                    {% if es_admin %}
+                    <a class="btn btn-sm" href="{% url 'Morris_Revises' Hunter.pk %}">Editar</a>
+                    {% if Hunter.Activo %}
+                    <form method="post" action="{% url 'Julius_Retires' Hunter.pk %}"
+                          data-confirm="{{ Hunter.True_Name }} quedará inactivo." data-confirm-boton="Desactivar">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-danger" type="submit">Desactivar</button>
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+                {% include '_vacio.html' with Cols=6 Icon='users' Titulo='Sin maestros' Texto='No hay maestros con este filtro.' %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include '_paginacion.html' %}
+{% endblock %}

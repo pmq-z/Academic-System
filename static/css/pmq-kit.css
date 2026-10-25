@@ -1,0 +1,133 @@
+/* ==========================================================================
+   pmq-kit.css - capa compartida entre los proyectos de pmq-z
+   --------------------------------------------------------------------------
+   Cada proyecto conserva su propio tema (Marathon, terminal CRT, etc.).
+   Esta hoja NO pinta nada por su cuenta: solo unifica el comportamiento
+   (foco de teclado, movimiento reducido, tamano tactil) y el pie de pagina
+   que conecta los proyectos entre si.
+
+   Cada proyecto define estas variables con sus propios colores:
+     --pmq-accent   color del anillo de foco y de los enlaces del pie
+     --pmq-line     linea divisoria del pie
+     --pmq-muted    texto secundario del pie
+     --pmq-mono     familia monoespaciada del proyecto
+   Misma copia en todos los repos: si cambias una, cambialas todas.
+   ========================================================================== */
+
+:root {
+  --pmq-accent: Highlight;
+  --pmq-line: currentColor;
+  --pmq-muted: inherit;
+  --pmq-mono: ui-monospace, "JetBrains Mono", Consolas, monospace;
+}
+
+/* Foco visible y consistente solo con teclado (no al hacer clic). */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--pmq-accent);
+  outline-offset: 2px;
+}
+
+/* Quien pidio menos movimiento al sistema operativo, lo recibe aqui tambien. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* En pantallas tactiles, ningun boton por debajo de 44px (guia de accesibilidad WCAG). */
+@media (pointer: coarse) {
+  :where(button, .btn, [role="button"], input[type="submit"], select) {
+    min-height: 44px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Pie de pagina compartido: quien lo hizo, el codigo y los otros proyectos.
+   -------------------------------------------------------------------------- */
+.pmq-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: 40px;
+  padding: 16px 0 8px;
+  border-top: 1px solid var(--pmq-line);
+  color: var(--pmq-muted);
+  font-family: var(--pmq-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.pmq-footer a {
+  color: var(--pmq-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pmq-footer a:hover { text-decoration-thickness: 2px; }
+
+.pmq-footer__projects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pmq-footer__projects [aria-current="page"] {
+  color: var(--pmq-muted);
+  text-decoration: none;
+  pointer-events: none;
+}
+
+.pmq-footer p { margin: 0; }
+
+/* --------------------------------------------------------------------------
+   Motivos del portafolio (pmq-z.github.io): estrella de cuatro puntas,
+   campo de semitono y orbitas de linea fina. Cada proyecto los usa poco,
+   con sus propios colores.
+     --pmq-dot   color de los puntos del semitono (default: el acento)
+   -------------------------------------------------------------------------- */
+
+/* Estrella de cuatro puntas: la firma del portafolio, antes de "pmq-z" en el pie. */
+.pmq-spark,
+.pmq-footer p::before {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  background: var(--pmq-accent);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  vertical-align: -0.05em;
+}
+.pmq-footer p::before { content: ""; margin-right: 0.55em; }
+
+/* Campo de semitono: puntos que crecen hacia una esquina y se desvanecen.
+   Va en un elemento decorativo (aria-hidden) posicionado por cada proyecto. */
+.pmq-halftone {
+  --pmq-dot: var(--pmq-accent);
+  background-image: radial-gradient(circle, var(--pmq-dot) 1.15px, transparent 1.6px);
+  background-size: 7px 7px;
+  -webkit-mask-image: radial-gradient(120% 120% at 100% 100%, #000 0%, rgba(0, 0, 0, 0.35) 45%, transparent 75%);
+          mask-image: radial-gradient(120% 120% at 100% 100%, #000 0%, rgba(0, 0, 0, 0.35) 45%, transparent 75%);
+  pointer-events: none;
+}
+
+/* Orbitas: SVG decorativo con dos elipses cruzadas, detras de un bloque. */
+.pmq-orbits {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 160%;
+  height: auto;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: -1;
+  overflow: visible;
+}
+.pmq-orbits ellipse { fill: none; stroke: var(--pmq-accent); stroke-width: 1; opacity: 0.45; vector-effect: non-scaling-stroke; }

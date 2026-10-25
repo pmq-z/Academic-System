@@ -1,0 +1,46 @@
+sequenceDiagram
+    actor U as Usuario
+    participant N as Nginx
+    participant D as Django (Cerberus_Gate)
+    participant C as Cache (intentos)
+    participant DB as PostgreSQL
+    participant R as Redis (sesión)
+
+    U->>N: GET /login/
+    N->>D: proxy_pass
+    D-->>U: formulario de login
+
+    U->>N: POST /login/ (usuario, contraseña)
+    N->>D: proxy_pass
+    D->>C: ¿5 fallos seguidos de este usuario + IP?
+
+    alt bloqueado
+        D-->>U: 200 "Demasiados intentos" (15 min)
+    else no bloqueado
+        D->>DB: Cerberus valida credenciales
+        DB-->>D: resultado
+        alt credenciales correctas y cuenta no está en BAJA
+            D->>C: borra el contador de fallos
+            D->>R: crea sesión (cached_db: cache + BD)
+            D-->>U: 302 → / + cookie de sesión
+        else cuenta con Belmont_Lineage.Estado = BAJA
+            D-->>U: 200 "Esta cuenta está dada de baja"
+        else credenciales incorrectas
+            D->>C: suma un fallo
+            D-->>U: 200 formulario con error genérico
+            note over D,U: no distingue "usuario no existe" de<br/>"contraseña incorrecta" (evita enumeración)
+        end
+    end
+
+    U->>N: GET /academico/alumnos/nuevo/ (con cookie)
+    N->>D: proxy_pass
+    D->>R: recupera sesión
+    R-->>D: usuario autenticado
+
+    D->>D: Belmont_Blood_Only verifica<br/>Belmont_Lineage.Rol == 'ADMIN'
+
+    alt es administrador
+        D-->>U: 200 formulario de alta
+    else no es administrador
+        D-->>U: 302 → / con mensaje de error
+    end

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head> //login, dashboard,documentos,usuario,firma
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firmar Documentos</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .contenedor {
+            width: 100%;
+            max-width: 450px;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .logo {
+            width: 85px;
+            height: 85px;
+            background: #1e3c72;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px auto;
+            font-size: 35px;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 29px;
+        }
+
+        .descripcion {
+            color: #555;
+            margin-bottom: 25px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #1e3c72;
+            box-shadow: 0 0 8px rgba(30, 60, 114, 0.3);
+        }
+
+        button {
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #16305c;
+            transform: scale(1.03);
+        }
+
+        .admin {
+            margin-top: 22px;
+        }
+
+        .admin a {
+            color: #1e3c72;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .admin a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 25px;
+            font-size: 13px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <main class="contenedor">
+        <div class="logo">FD</div>
+
+        <h1>Firmar Documentos</h1>
+        <p class="descripcion">
+            Sistema básico en Django para guardar registros en una base de datos.
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.texto }}
+            <button type="submit">Guardar Registro</button>
+        </form>
+
+        <div class="admin">
+            <a href="/admin/">Entrar al panel de administración</a>
+        </div>
+
+        <div class="footer">
+            Proyecto Django - Firmar Documentos
+        </div>
+    </main>
+</body>
+</html>

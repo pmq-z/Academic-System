@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CryptoVault</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Consolas, Arial, sans-serif;
+        }
+
+        body {
+            background: #050509;
+            color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            height: 68px;
+            background: #08080d;
+            border-bottom: 1px solid #171720;
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            gap: 28px;
+        }
+
+        .logo {
+            color: #00ff9d;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #fff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 22px;
+        }
+
+        .nav-links a {
+            color: #999;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #00ff9d;
+        }
+
+        .logout {
+            margin-left: auto;
+        }
+
+        .logout a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout a:hover {
+            color: #00ff9d;
+        }
+
+        .container {
+            padding: 28px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #0d0d13;
+            border: 1px solid #22222c;
+            border-radius: 8px;
+            padding: 22px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .icon-box {
+            width: 42px;
+            height: 42px;
+            background: rgba(0, 255, 157, 0.12);
+            color: #00ff9d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 20px;
+        }
+
+        .stat-card p {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .stat-card h2 {
+            color: #fff;
+            font-size: 26px;
+        }
+
+        .green {
+            color: #00ff9d !important;
+        }
+
+        .grid-main {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+        }
+
+        .panel {
+            background: #0d0d13;
+            border: 1px solid #20202a;
+            border-radius: 8px;
+            padding: 22px;
+        }
+
+        .panel-glow {
+            box-shadow: 0 0 25px rgba(0, 255, 157, 0.18);
+            border-color: rgba(0, 255, 157, 0.35);
+        }
+
+        .panel-title {
+            font-size: 20px;
+            margin-bottom: 22px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .line {
+            height: 1px;
+            background: #24242d;
+            margin: 18px 0;
+        }
+
+        label {
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            background: #07070c;
+            border: 1px solid #24242d;
+            color: #ddd;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 18px;
+            outline: none;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #00ff9d;
+            box-shadow: 0 0 8px rgba(0, 255, 157, 0.25);
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .btn {
+            width: 100%;
+            background: #00ff9d;
+            color: #001f14;
+            border: none;
+            padding: 13px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #00cc7e;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #00ff9d;
+            color: #00ff9d;
+            width: auto;
+            padding: 10px 16px;
+        }
+
+        .btn-outline:hover {
+            background: rgba(0, 255, 157, 0.12);
+            color: #00ff9d;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 20px;
+            margin-bottom: 24px;
+        }
+
+        .blockchain-area {
+            border-top: 1px solid #1d1d26;
+            border-bottom: 1px solid #1d1d26;
+            padding: 28px 0;
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .block-card {
+            width: 260px;
+            min-width: 260px;
+            background: #0c0c12;
+            border: 1px solid #00aa72;
+            border-radius: 7px;
+            padding: 18px;
+        }
+
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 16px;
+        }
+
+        .field-name {
+            color: #aaa;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .hash-box {
+            background: rgba(0, 255, 157, 0.08);
+            color: #00ff9d;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .payload {
+            background: #22232b;
+            color: #bbb;
+            min-height: 70px;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .arrow {
+            color: #00ff9d;
+            font-size: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #0d0d13;
+            border: 1px solid #22222c;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #15151d;
+            color: #aaa;
+            font-size: 13px;
+            padding: 14px;
+            text-align: left;
+        }
+
+        td {
+            padding: 14px;
+            border-top: 1px solid #22222c;
+            color: #ddd;
+            font-size: 13px;
+        }
+
+        .tag {
+            background: rgba(0, 255, 157, 0.1);
+            color: #00ff9d;
+            border: 1px solid rgba(0, 255, 157, 0.4);
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            margin-bottom: 24px;
+        }
+
+        .explorer-chain {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            margin-top: 30px;
+        }
+
+        .chain-line {
+            width: 2px;
+            height: 65px;
+            background: #00ff9d;
+            opacity: 0.4;
+        }
+
+        .user-card {
+            max-width: 600px;
+        }
+
+        @media (max-width: 900px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-main {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo">⌁ Crypto<span>Vault</span></div>
+
+        <div class="nav-links">
+            <a href="{% url 'dashboard' %}">Shield & View</a>
+            <a href="{% url 'documentos' %}">History</a>
+            <a href="{% url 'firma' %}">Explorer</a>
+            <a href="{% url 'usuario' %}">Usuario</a>
+        </div>
+
+        <div class="logout">
+            <a href="{% url 'logout' %}">Cerrar sesión</a>
+        </div>
+    </div>
+
+    <div class="container">
+        {% block contenido %}
+        {% endblock %}
+    </div>
+
+</body>
+</html>

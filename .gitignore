@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.env
+db.sqlite3
+*.sqlite3
+
+# Base SQLite local (SQLITE_DATA_DIR por defecto) y salida de collectstatic.
+data/
+staticfiles/
+
+# Entornos virtuales y editores.
+venv/
+.venv/
+.idea/
+.vscode/

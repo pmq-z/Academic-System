@@ -1,0 +1,98 @@
+# Arquitectura de 4 contenedores (ver documentación para el diagrama completo):
+#
+#   nginx (único puerto publicado al host)
+#     └─ red_publica ─→ web
+#                          └─ red_privada ─→ db, redis
+#
+# db y redis NUNCA quedan en red_publica: no son alcanzables desde fuera del
+# host ni directamente desde nginx, solo desde 'web'. Esto es intencional
+# (aislamiento de contenedores) y no un descuido.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sistema_escolar_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sistema_escolar}
+      POSTGRES_USER: ${POSTGRES_USER:-sistema_escolar}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - red_privada
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: sistema_escolar_redis
+    # --appendonly conserva las sesiones activas si el contenedor se reinicia;
+    # como cache/sesiones (no como base de datos primaria) no necesita más que esto.
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - red_privada
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: sistema_escolar_web
+    env_file:
+      - .env
+    environment:
+      # Nombres de servicio de Compose = hostname DNS dentro de la red interna.
+      POSTGRES_HOST: db
+      REDIS_HOST: redis
+    volumes:
+      - static_files:/app/staticfiles
+    networks:
+      - red_privada
+      - red_publica
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    # Sin 'ports': todo el tráfico entra por nginx (ver más abajo).
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: sistema_escolar_nginx
+    ports:
+      - "${HTTP_PORT:-8000}:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_files:/app/staticfiles:ro
+    networks:
+      - red_publica
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  red_publica:
+  red_privada:
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_files:

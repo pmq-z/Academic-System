@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% comment %}"Charlotte's spellbook, page by page."{% endcomment %}
+
+{% block title %}Materias{% endblock %}
+{% block page_title %}Materias{% endblock %}
+{% block page_actions %}
+    {% if es_admin %}<a class="btn btn-primary" href="{% url 'Charlotte_Learns_A_Spell' %}">Nueva materia</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+{% include 'alumnos_maestros/_tabs.html' %}
+{% include 'alumnos_maestros/_toolbar.html' with Placeholder='Clave, nombre, carrera o maestro' Etiqueta_Activos='Vigentes' Etiqueta_Inactivos='Desactivadas' %}
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Materia</th>
+                <th>Carrera</th>
+                <th class="num">Créditos</th>
+                <th>Inscritos / cupo</th>
+                <th>Responsable</th>
+                {% if Filtro != 'activos' %}<th>Estado</th>{% endif %}
+                <th class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Card in Door %}
+            <tr>
+                <td>
+                    <span class="u-strong">{{ Card.Nombre }}</span>
+                    <span class="cell-sub u-mono">{{ Card.Clave }}</span>
+                </td>
+                <td>{{ Card.Carrera }} <span class="cell-sub">{{ Card.Semestre }}° semestre</span></td>
+                <td class="num">{{ Card.Creditos }}</td>
+                <td>
+                    {{ Card.Ocupados }} / {{ Card.Cupo_Maximo }}
+                    {% if Card.Ocupados >= Card.Cupo_Maximo %}<span class="badge badge--pending">Lleno</span>{% endif %}
+                    <span class="cell-sub">inscripciones vigentes, todos los periodos</span>
+                </td>
+                <td>{{ Card.Maestro_Responsable.True_Name }}</td>
+                {% if Filtro != 'activos' %}<td>{% Candle_Lit Card.Activa 'Vigente' 'Desactivada' %}</td>{% endif %}
+                <td class="actions">
+                    {% if es_admin %}
+                    <a class="btn btn-sm" href="{% url 'Charlotte_Rewrites_A_Spell' Card.pk %}">Editar</a>
+                    {% if Card.Activa %}
+                    <form method="post" action="{% url 'Charlotte_Seals_A_Spell' Card.pk %}"
+                          data-confirm="{{ Card.Clave }} dejará de ofrecerse para nuevas inscripciones." data-confirm-boton="Desactivar">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-danger" type="submit">Desactivar</button>
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+                {% include '_vacio.html' with Cols=7 Icon='book' Titulo='Sin materias' Texto='No hay materias con este filtro.' %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include '_paginacion.html' %}
+{% endblock %}

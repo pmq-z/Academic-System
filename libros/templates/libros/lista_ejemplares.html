@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% comment %}"Alucard counts every copy kept in the Hold."{% endcomment %}
+
+{% block title %}Ejemplares{% endblock %}
+{% block breadcrumbs %}<div class="topbar__crumbs"><a href="{% url 'Master_Librarian' %}">Catálogo</a>{% if Tome %} / {{ Tome.Titulo }}{% endif %}</div>{% endblock %}
+{% block page_title %}Ejemplares{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'Alucard_Adds_A_Copy' %}{% if Tome %}?libro={{ Tome.id }}{% endif %}" class="btn btn-primary">Registrar ejemplar</a>
+{% endblock %}
+
+{% block content %}
+<div class="list-toolbar">
+    <form method="get" class="search-form" role="search">
+        {% if Tome %}<input type="hidden" name="libro" value="{{ Tome.id }}">{% endif %}
+        {% if Filtro %}<input type="hidden" name="estado" value="{{ Filtro }}">{% endif %}
+        <label for="buscar" class="sr-only">Buscar ejemplares</label>
+        <input type="search" id="buscar" name="buscar" placeholder="Código o título" value="{{ Busqueda }}">
+        <button type="submit" class="btn">{% Glyph 'search' %}Buscar</button>
+    </form>
+    <nav class="filter-chips" aria-label="Filtrar por estado">
+        <a class="chip" href="?{% if Tome %}libro={{ Tome.id }}{% endif %}" {% if not Filtro %}aria-current="true"{% endif %}>Todos</a>
+        {% for Value, Label in Estados %}
+        <a class="chip" href="?estado={{ Value|urlencode }}{% if Tome %}&amp;libro={{ Tome.id }}{% endif %}" {% if Filtro == Value %}aria-current="true"{% endif %}>{{ Label }}</a>
+        {% endfor %}
+    </nav>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Libro</th>
+                <th>Estado</th>
+                <th>Ubicación</th>
+                <th class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Copy in Door %}
+            <tr>
+                <td class="u-mono u-strong">{{ Copy.Codigo_Ejemplar }}</td>
+                <td>{{ Copy.Libro.Titulo }}</td>
+                <td>{% Magic_Seal Copy %}</td>
+                <td>{{ Copy.Ubicacion|default:"—" }}</td>
+                <td class="actions">
+                    <a href="{% url 'Alucard_Restores_A_Copy' Copy.id %}" class="btn btn-sm">Editar</a>
+                    {% if Copy.Estado != 'BAJA' and Copy.Estado != 'PRESTADO' %}
+                    <form method="post" action="{% url 'Alucard_Retires_A_Copy' Copy.id %}"
+                          data-confirm="El ejemplar {{ Copy.Codigo_Ejemplar }} dejará de prestarse." data-confirm-boton="Dar de baja">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Dar de baja</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+                {% url 'Alucard_Adds_A_Copy' as New_Url %}
+                {% include '_vacio.html' with Cols=5 Icon='grid' Titulo='No hay ejemplares' Texto='Cada copia física de un libro es un ejemplar con su propio código.' Accion_Url=New_Url Accion='Registrar ejemplar' %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include '_paginacion.html' %}
+{% endblock %}

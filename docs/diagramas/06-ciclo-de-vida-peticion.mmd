@@ -1,0 +1,37 @@
+sequenceDiagram
+    actor U as Usuario
+    participant N as Nginx
+    participant G as Gunicorn
+    participant M as Cadena de middleware
+    participant V as Vista (con decoradores)
+    participant O as ORM / PostgreSQL
+    participant T as Motor de templates
+
+    U->>N: GET /academico/alumnos/
+    N->>N: ¿coincide con /static/*? → no
+    N->>G: proxy_pass + X-Forwarded-Proto/For
+
+    G->>M: WSGI request
+
+    note over M: SecurityMiddleware → SessionMiddleware →<br/>CommonMiddleware → CsrfViewMiddleware →<br/>AuthenticationMiddleware → MessageMiddleware →<br/>XFrameOptionsMiddleware
+
+    M->>M: adjunta request.user (sesión vía Redis/BD)
+
+    M->>V: despacha según config/urls.py → Nathan_And_Hugh
+
+    V->>V: @Hunters_And_Speakers_Only verifica el rol
+    alt no autenticado
+        V-->>U: 302 → /login/?next=...
+    else sin rol de personal
+        V-->>U: 302 → / con mensaje de error
+    else personal escolar
+        V->>O: consulta (Belmont_Heir.objects...)
+        O-->>V: queryset paginado (Saint_Germain)
+        V->>T: render(request, 'alumno_list.html', contexto)
+        T->>T: aplica context_processors<br/>(request, auth, messages, Alucard_Senses_Blood)
+        T-->>V: HTML renderizado
+        V-->>M: HttpResponse
+        M-->>G: respuesta + headers de seguridad
+        G-->>N: respuesta
+        N-->>U: 200 HTML
+    end

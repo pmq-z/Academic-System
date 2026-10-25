@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% comment %}"What are ya buying? What are ya selling?"{% endcomment %}
+
+{% block title %}Billetera{% endblock %}
+{% block page_title %}Billetera institucional{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'Hammer_Rings_It_Up' %}" class="btn btn-primary">Registrar movimiento</a>
+{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+    <div class="stat-card {% if Saldo < 0 %}stat-card--danger{% endif %}">
+        <span class="stat-card__label">Saldo actual</span>
+        <span class="stat-card__value stat-card__value--decimal">${{ Saldo|floatformat:"2g" }}</span>
+        <span class="stat-card__hint">{% if Saldo < 0 %}Los egresos superan a los ingresos{% elif Saldo >= 0 %}MXN{% endif %}</span>
+    </div>
+    <div class="stat-card stat-card--ok">
+        <span class="stat-card__label">Ingresos totales</span>
+        <span class="stat-card__value stat-card__value--decimal">${{ Ingresos|floatformat:"2g" }}</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-card__label">Egresos totales</span>
+        <span class="stat-card__value stat-card__value--decimal">${{ Egresos|floatformat:"2g" }}</span>
+    </div>
+</div>
+
+<div class="list-toolbar">
+    <form method="get" class="search-form" role="search">
+        {% if Tipo %}<input type="hidden" name="tipo" value="{{ Tipo }}">{% endif %}
+        <label for="q" class="sr-only">Buscar por concepto</label>
+        <input type="search" id="q" name="q" value="{{ Busqueda }}" placeholder="Buscar por concepto">
+        <button class="btn" type="submit">{% Glyph 'search' %}Buscar</button>
+    </form>
+    <nav class="filter-chips" aria-label="Filtrar por tipo">
+        <a class="chip" href="?{% if Busqueda %}q={{ Busqueda|urlencode }}{% endif %}" {% if not Tipo %}aria-current="true"{% endif %}>Todos</a>
+        <a class="chip" href="?tipo=Ingreso{% if Busqueda %}&amp;q={{ Busqueda|urlencode }}{% endif %}" {% if Tipo == 'Ingreso' %}aria-current="true"{% endif %}>Ingresos</a>
+        <a class="chip" href="?tipo=Egreso{% if Busqueda %}&amp;q={{ Busqueda|urlencode }}{% endif %}" {% if Tipo == 'Egreso' %}aria-current="true"{% endif %}>Egresos</a>
+    </nav>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Concepto</th>
+                <th>Tipo</th>
+                <th class="num">Monto</th>
+                <th>Registró</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Receipt in Door %}
+            <tr>
+                <td class="u-nowrap">{{ Receipt.Fecha|date:"d/m/Y H:i" }}</td>
+                <td>{{ Receipt.Concepto }}</td>
+                <td>{% Magic_Seal Receipt 'Tipo' %}</td>
+                <td class="num u-mono u-strong">{% if Receipt.Tipo == 'Egreso' %}−{% endif %}${{ Receipt.Monto|floatformat:"2g" }}</td>
+                <td>{{ Receipt.Registrado_Por.username|default:"—" }}</td>
+            </tr>
+            {% empty %}
+                {% include '_vacio.html' with Cols=5 Icon='wallet' Titulo='Sin movimientos' Texto='Registra el primer ingreso o egreso.' %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include '_paginacion.html' %}
+{% endblock %}

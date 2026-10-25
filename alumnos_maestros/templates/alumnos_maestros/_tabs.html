@@ -1,0 +1,9 @@
+{% with p=request.path %}
+<nav class="filter-chips" aria-label="Secciones de Alumnos y maestros" style="margin-bottom: var(--sp-4);">
+    <a class="chip" href="{% url 'Circle_Of_The_Moon' %}" {% if p == '/academico/' %}aria-current="true"{% endif %}>Resumen</a>
+    <a class="chip" href="{% url 'Nathan_And_Hugh' %}" {% if '/alumnos/' in p %}aria-current="true"{% endif %}>Alumnos</a>
+    <a class="chip" href="{% url 'Morris_Baldwin' %}" {% if '/maestros/' in p %}aria-current="true"{% endif %}>Maestros</a>
+    <a class="chip" href="{% url 'Charlotte_Spellbook' %}" {% if '/materias/' in p %}aria-current="true"{% endif %}>Materias</a>
+    <a class="chip" href="{% url 'Order_Of_Ecclesia' %}" {% if '/inscripciones/' in p %}aria-current="true"{% endif %}>Inscripciones</a>
+</nav>
+{% endwith %}

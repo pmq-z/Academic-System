@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+
+{% block contenido %}
+
+<h1 class="page-title">Usuario</h1>
+
+<div class="panel user-card">
+    <h2 class="panel-title">👤 Información del usuario</h2>
+    <div class="line"></div>
+
+    <p><strong class="green">Usuario:</strong> {{ request.user.username }}</p>
+    <br>
+
+    <p><strong class="green">Nombre:</strong> {{ request.user.first_name }}</p>
+    <br>
+
+    <p><strong class="green">Apellido:</strong> {{ request.user.last_name }}</p>
+    <br>
+
+    <p><strong class="green">Correo:</strong> {{ request.user.email }}</p>
+    <br>
+
+    <p>
+        <strong class="green">Administrador:</strong>
+        {% if request.user.is_superuser %}
+            Sí
+        {% else %}
+            No
+        {% endif %}
+    </p>
+
+    <br>
+
+    <a href="{% url 'logout' %}" class="btn">Cerrar sesión</a>
+</div>
+
+{% endblock %}

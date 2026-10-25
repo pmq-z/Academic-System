@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block auth_content %}
+<div class="auth-card">
+    <svg class="pmq-orbits" viewBox="0 0 400 200" aria-hidden="true"><ellipse cx="200" cy="100" rx="192" ry="52" transform="rotate(-13 200 100)"/><ellipse cx="200" cy="100" rx="192" ry="52" transform="rotate(13 200 100)"/></svg>
+    <div class="auth-card__head">
+        <span class="sidebar-brand__mark">{% include '_brand_mark.html' %}</span>
+        <h1>Sistema Escolar</h1>
+        <p>Inicia sesión para continuar</p>
+    </div>
+
+    {% if form.non_field_errors %}
+        <div class="form-errors" role="alert">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="form-grid form-grid--single">
+            <div class="form-field">
+                <label for="id_username">Usuario</label>
+                <input type="text" name="username" id="id_username" value="{{ form.username.value|default:'' }}" autocomplete="username" autocapitalize="none" autofocus required>
+            </div>
+            <div class="form-field">
+                <label for="id_password">Contraseña</label>
+                <input type="password" name="password" id="id_password" autocomplete="current-password" required>
+            </div>
+        </div>
+        <div class="form-actions form-actions--plain">
+            <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+        </div>
+    </form>
+
+    <p class="auth-card__foot">¿No tienes cuenta? <a href="{% url 'Sypha_Joins_The_Party' %}">Regístrate para usar la biblioteca</a></p>
+</div>
+{% endblock %}

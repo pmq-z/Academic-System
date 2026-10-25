@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% comment %}"The Circle gathers: masters, apprentices, and the cards they study."{% endcomment %}
+
+{% block title %}Alumnos y maestros{% endblock %}
+{% block page_title %}Alumnos y maestros{% endblock %}
+
+{% block content %}
+{% include 'alumnos_maestros/_tabs.html' %}
+
+<div class="stat-grid">
+    <a class="stat-card" href="{% url 'Nathan_And_Hugh' %}">
+        <span class="stat-card__label">Alumnos activos</span>
+        <span class="stat-card__value">{{ Total_Alumnos }}</span>
+        <span class="stat-card__hint">Ver lista</span>
+    </a>
+    <a class="stat-card" href="{% url 'Morris_Baldwin' %}">
+        <span class="stat-card__label">Maestros activos</span>
+        <span class="stat-card__value">{{ Total_Maestros }}</span>
+        <span class="stat-card__hint">Ver lista</span>
+    </a>
+    <a class="stat-card" href="{% url 'Charlotte_Spellbook' %}">
+        <span class="stat-card__label">Materias vigentes</span>
+        <span class="stat-card__value">{{ Total_Materias }}</span>
+        <span class="stat-card__hint">Ver lista</span>
+    </a>
+    <a class="stat-card" href="{% url 'Order_Of_Ecclesia' %}">
+        <span class="stat-card__label">Inscripciones vigentes</span>
+        <span class="stat-card__value">{{ Total_Inscripciones }}</span>
+        <span class="stat-card__hint">Ver lista</span>
+    </a>
+</div>
+
+<div class="content-grid">
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Alumnos registrados recientemente</h2>
+            <a class="btn btn-sm" href="{% url 'Nathan_And_Hugh' %}">Ver todos</a>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Alumno</th><th>Carrera</th><th>Grupo</th></tr></thead>
+                <tbody>
+                    {% for Heir in Newest_Heirs %}
+                    <tr>
+                        <td><span class="u-strong">{{ Heir.True_Name }}</span><span class="cell-sub u-mono">{{ Heir.Matricula }}</span></td>
+                        <td>{{ Heir.Carrera }}</td>
+                        <td>{{ Heir.Semestre }}° {{ Heir.Grupo }}</td>
+                    </tr>
+                    {% empty %}
+                        {% include '_vacio.html' with Cols=3 Icon='users' Titulo='Aún no hay alumnos' %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div>
+        {% if es_admin %}
+        <section class="panel">
+            <div class="panel-header"><h2>Acciones rápidas</h2></div>
+            <div class="quick-actions">
+                <a class="btn" href="{% url 'Morris_Takes_An_Apprentice' %}">{% Glyph 'plus' %}Nuevo alumno</a>
+                <a class="btn" href="{% url 'Morris_Recruits' %}">{% Glyph 'plus' %}Nuevo maestro</a>
+                <a class="btn" href="{% url 'Charlotte_Learns_A_Spell' %}">{% Glyph 'plus' %}Nueva materia</a>
+                <a class="btn" href="{% url 'Join_The_Order' %}">{% Glyph 'plus' %}Nueva inscripción</a>
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="panel">
+            <div class="panel-header"><h2>Materias más demandadas</h2></div>
+            {% for Card in Crowded_Cards %}
+                <div style="display: flex; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-2) 0; border-bottom: 1px solid var(--line-soft);">
+                    <span>{{ Card.Nombre }} <span class="cell-sub u-mono">{{ Card.Clave }}</span></span>
+                    <span class="u-nowrap">{{ Card.Ocupados }} / {{ Card.Cupo_Maximo }}{% if Card.Ocupados >= Card.Cupo_Maximo %} <span class="badge badge--pending">Lleno</span>{% endif %}</span>
+                </div>
+            {% empty %}
+                <p class="u-muted">Sin materias vigentes.</p>
+            {% endfor %}
+        </section>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% comment %}"Living, undead, or both?"{% endcomment %}
+<div class="list-toolbar">
+    <form method="get" class="search-form" role="search">
+        <input type="hidden" name="estado" value="{{ Filtro }}">
+        <label for="q" class="sr-only">Buscar</label>
+        <input type="search" id="q" name="q" value="{{ Busqueda }}" placeholder="{{ Placeholder }}">
+        <button class="btn" type="submit">{% Glyph 'search' %}Buscar</button>
+    </form>
+    <nav class="filter-chips" aria-label="Filtrar por estado">
+        <a class="chip" href="?estado=activos{% if Busqueda %}&amp;q={{ Busqueda|urlencode }}{% endif %}" {% if Filtro == 'activos' %}aria-current="true"{% endif %}>{{ Etiqueta_Activos|default:'Activos' }}</a>
+        <a class="chip" href="?estado=inactivos{% if Busqueda %}&amp;q={{ Busqueda|urlencode }}{% endif %}" {% if Filtro == 'inactivos' %}aria-current="true"{% endif %}>{{ Etiqueta_Inactivos|default:'Inactivos' }}</a>
+        <a class="chip" href="?estado=todos{% if Busqueda %}&amp;q={{ Busqueda|urlencode }}{% endif %}" {% if Filtro == 'todos' %}aria-current="true"{% endif %}>Todos</a>
+    </nav>
+</div>

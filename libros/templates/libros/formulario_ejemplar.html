@@ -1,0 +1,3 @@
+{% extends 'form_page.html' %}
+{% block cancelar %}{% url 'Alucard_Counts_The_Hold' %}{% endblock %}
+{% block extra_buttons %}{% if Nuevo %}<button type="submit" name="otro" value="1" class="btn">Guardar y agregar otro</button>{% endif %}{% endblock %}

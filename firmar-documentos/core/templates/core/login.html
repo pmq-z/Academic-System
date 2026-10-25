@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - CryptoVault</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Consolas, Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at center, #0b2f25, #050509 55%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .login-box {
+            width: 390px;
+            background: #0d0d13;
+            border: 1px solid rgba(0, 255, 157, 0.35);
+            border-radius: 10px;
+            padding: 35px;
+            box-shadow: 0 0 35px rgba(0, 255, 157, 0.2);
+        }
+
+        .logo {
+            color: #00ff9d;
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        p {
+            text-align: center;
+            color: #888;
+            margin-bottom: 28px;
+        }
+
+        input {
+            width: 100%;
+            background: #07070c;
+            border: 1px solid #292934;
+            color: white;
+            padding: 13px;
+            border-radius: 5px;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #00ff9d;
+        }
+
+        button {
+            width: 100%;
+            background: #00ff9d;
+            color: #001f14;
+            border: none;
+            padding: 13px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .error {
+            background: rgba(255, 0, 70, 0.15);
+            color: #ff4b7b;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .admin {
+            margin-top: 18px;
+            text-align: center;
+        }
+
+        .admin a {
+            color: #00ff9d;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <div class="logo">⌁ CryptoVault</div>
+    <h1>Login</h1>
+    <p>Accede al sistema de firma documental</p>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Usuario" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <button type="submit">Ingresar</button>
+    </form>
+
+    <div class="admin">
+        <a href="/admin/">Panel administrador</a>
+    </div>
+</div>
+
+</body>
+</html>

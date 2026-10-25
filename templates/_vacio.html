@@ -1,0 +1,14 @@
+{% comment %}
+"An empty hall still deserves a sign on the door."
+Uso: {% include '_vacio.html' with Cols=5 Icon='book' Titulo='...' Texto='...' Accion_Url=... Accion='...' %}
+{% endcomment %}
+<tr>
+    <td colspan="{{ Cols }}" class="empty">
+        <div class="empty-state">
+            {% Glyph Icon|default:'inbox' %}
+            {% if Titulo %}<strong>{{ Titulo }}</strong>{% endif %}
+            {% if Texto %}<p>{{ Texto }}</p>{% endif %}
+            {% if Accion_Url %}<a href="{{ Accion_Url }}" class="btn btn-primary btn-sm">{{ Accion }}</a>{% endif %}
+        </div>
+    </td>
+</tr>

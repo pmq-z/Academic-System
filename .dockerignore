@@ -1,0 +1,31 @@
+# Entorno y secretos: nunca deben terminar dentro de la imagen.
+.env
+.git
+.gitignore
+
+# Artefactos de Python.
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Entornos virtuales locales (la imagen instala sus propias dependencias).
+venv/
+env/
+.venv/
+
+# Datos y estáticos generados: se regeneran en el contenedor (ver
+# docker-entrypoint.sh), no tiene sentido copiarlos desde el host.
+data/
+db.sqlite3
+staticfiles/
+
+# Editores / SO.
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Documentación pesada: no la necesita el runtime de la app.
+docs/
+*.md

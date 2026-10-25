@@ -1,0 +1,3 @@
+{% extends 'form_page.html' %}
+{% block cancelar %}{% url 'Master_Librarian' %}{% endblock %}
+{% block intro %}{% if Scroll.instance.pk %}<p class="u-muted">Cambiar el estado a «Baja» retira también sus ejemplares y rechaza las solicitudes pendientes.</p>{% endif %}{% endblock %}

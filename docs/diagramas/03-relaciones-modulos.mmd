@@ -1,0 +1,35 @@
+flowchart TB
+    Usuarios["<b>usuarios</b><br/>Belmont_Lineage, roles,<br/>Belmont_Blood_Only / es_admin"]
+    AuthUser[("django.contrib.auth.User")]
+
+    Academico["<b>alumnos_maestros</b><br/>Belmont_Heir, Vampire_Hunter,<br/>DSS_Card, Ecclesia_Vow"]
+    Calificaciones["<b>calificaciones</b><br/>Gresit_Court, Verdict"]
+    Horarios["<b>horarios</b><br/>Clock_Tower_Gear"]
+    Empresas["<b>empresas</b><br/>Council_Seat"]
+    Billetera["<b>billetera</b><br/>Hammer_Receipt"]
+    Libros["<b>libros</b><br/>Long_Library_Tome,<br/>Belmont_Hold_Copy"]
+    Prestamos["<b>prestamos</b><br/>Hold_Petition, Borrowed_Relic"]
+
+    Prestamos -->|FK a ejemplar / libro| Libros
+    Horarios -->|FK a materia| Academico
+    Usuarios -->|extiende vía OneToOne| AuthUser
+    Calificaciones -.->|"FK directa a User<br/>(no reutiliza heir / hunter)"| AuthUser
+    Billetera -.->|"Registrado_Por → User"| AuthUser
+
+    Usuarios -.->|Belmont_Blood_Only / es_admin| Academico
+    Usuarios -.->|Belmont_Blood_Only / es_admin| Calificaciones
+    Usuarios -.->|Belmont_Blood_Only / es_admin| Horarios
+    Usuarios -.->|Belmont_Blood_Only / es_admin| Empresas
+    Usuarios -.->|Belmont_Blood_Only / es_admin| Billetera
+    Usuarios -.->|Belmont_Blood_Only / es_admin| Libros
+    Usuarios -.->|Belmont_Blood_Only / es_admin| Prestamos
+
+    classDef comun fill:#1a0d02,stroke:#ff6a1f,color:#eae6da
+    classDef normal fill:#16181d,stroke:#363c46,color:#eae6da
+    classDef aislado fill:#3a1319,stroke:#ff3b4e,color:#eae6da
+    classDef core fill:#0e2f2c,stroke:#22d3c9,color:#eae6da
+
+    class Usuarios comun
+    class AuthUser core
+    class Academico,Calificaciones,Horarios,Billetera,Libros,Prestamos normal
+    class Empresas aislado

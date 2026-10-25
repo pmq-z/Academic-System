@@ -1,0 +1,35 @@
+flowchart TB
+    Browser["Navegador web"]
+
+    subgraph borde [" Nivel de borde "]
+        Nginx["Nginx<br/>proxy inverso + estáticos"]
+    end
+
+    subgraph aplicacion [" Contenedor web: Django + Gunicorn "]
+        direction TB
+        Usuarios["usuarios<br/><i>auth, roles, permisos</i>"]
+        Academico["alumnos_maestros"]
+        Calificaciones["calificaciones"]
+        Horarios["horarios"]
+        Empresas["empresas"]
+        Billetera["billetera"]
+        Libros["libros"]
+        Prestamos["prestamos"]
+    end
+
+    subgraph datos [" Nivel de datos "]
+        Postgres[("PostgreSQL<br/>datos persistentes")]
+        Redis[("Redis<br/>cache + sesiones")]
+    end
+
+    Browser -->|HTTP/HTTPS| Nginx
+    Nginx -->|proxy_pass :8000| aplicacion
+    aplicacion --> Postgres
+    aplicacion --> Redis
+
+    classDef modulo fill:#16181d,stroke:#363c46,color:#eae6da
+    classDef borde_cls fill:#1a0d02,stroke:#ff6a1f,color:#eae6da
+    classDef datos_cls fill:#0e2f2c,stroke:#22d3c9,color:#eae6da
+    class Usuarios,Academico,Calificaciones,Horarios,Empresas,Billetera,Libros,Prestamos modulo
+    class Nginx borde_cls
+    class Postgres,Redis datos_cls

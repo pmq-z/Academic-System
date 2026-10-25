@@ -1,0 +1,3 @@
+{% extends 'form_page.html' %}
+{% block cancelar %}{% url 'Nathan_And_Hugh' %}{% endblock %}
+{% block intro %}{% if Heir %}<p class="u-muted">Matrícula <span class="u-mono">{{ Heir.Matricula }}</span></p>{% elif not Heir %}<p class="u-muted">La matrícula se asigna sola al guardar.</p>{% endif %}{% endblock %}

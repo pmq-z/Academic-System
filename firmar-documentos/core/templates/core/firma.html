@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+
+{% block contenido %}
+
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h1 class="page-title">▤ Ledger Explorer</h1>
+        <p style="color:#888;">Total Height: <span class="green">2</span></p>
+    </div>
+
+    <a href="{% url 'dashboard' %}" class="btn btn-outline">⟳ Sync Chain</a>
+</div>
+
+<div class="line"></div>
+
+<div class="explorer-chain">
+
+    <div class="block-card">
+        <div class="block-header">
+            <strong>BLOCK #0</strong>
+            <span>22/6/2026, 18:48:49</span>
+        </div>
+
+        <div class="field-name"># Hash</div>
+        <div class="hash-box">a0d9bedf08fc...511adbc73434</div>
+
+        <div class="field-name">↗ Previous Hash</div>
+        <div class="hash-box">0</div>
+
+        <div class="field-name">▤ Payload</div>
+        <div class="payload">Bloque Génesis</div>
+    </div>
+
+    <div class="chain-line"></div>
+
+    <div class="block-card">
+        <div class="block-header">
+            <strong>BLOCK #1</strong>
+            <span>22/6/2026, 18:49:28</span>
+        </div>
+
+        <div class="field-name"># Hash</div>
+        <div class="hash-box">7ef771ac3a0...312dac01290e</div>
+
+        <div class="field-name">↗ Previous Hash</div>
+        <div class="hash-box">a0d9bedf08fc...511adbc73434</div>
+
+        <div class="field-name">▤ Payload</div>
+        <div class="payload">
+            Type: documento_firmado<br>
+            Title: Non-Disclosure<br>
+            DocHash: 75f76dbe...c6218933
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

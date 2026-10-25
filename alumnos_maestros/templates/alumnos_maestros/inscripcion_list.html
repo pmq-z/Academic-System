@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% comment %}"The Order keeps its roll."{% endcomment %}
+
+{% block title %}Inscripciones{% endblock %}
+{% block page_title %}Inscripciones{% endblock %}
+{% block page_actions %}
+    {% if es_admin %}<a class="btn btn-primary" href="{% url 'Join_The_Order' %}">Nueva inscripción</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+{% include 'alumnos_maestros/_tabs.html' %}
+{% include 'alumnos_maestros/_toolbar.html' with Placeholder='Alumno, matrícula, materia o periodo' Etiqueta_Activos='Vigentes' Etiqueta_Inactivos='Canceladas' %}
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Alumno</th>
+                <th>Materia</th>
+                <th>Periodo</th>
+                <th>Fecha</th>
+                {% if Filtro != 'activos' %}<th>Estado</th>{% endif %}
+                <th class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Vow in Door %}
+            <tr>
+                <td>
+                    <span class="u-strong">{{ Vow.Alumno.True_Name }}</span>
+                    <span class="cell-sub u-mono">{{ Vow.Alumno.Matricula }}</span>
+                </td>
+                <td>{{ Vow.Materia.Nombre }} <span class="cell-sub u-mono">{{ Vow.Materia.Clave }}</span></td>
+                <td class="u-mono">{{ Vow.Periodo_Escolar }}</td>
+                <td>{{ Vow.Fecha_Inscripcion|date:"d/m/Y" }}</td>
+                {% if Filtro != 'activos' %}<td>{% Candle_Lit Vow.Activo 'Vigente' 'Cancelada' %}</td>{% endif %}
+                <td class="actions">
+                    {% if es_admin and Vow.Activo %}
+                    <form method="post" action="{% url 'Leave_The_Order' Vow.pk %}"
+                          data-confirm="Se cancelará la inscripción de {{ Vow.Alumno.True_Name }} en {{ Vow.Materia.Clave }} y se liberará su lugar." data-confirm-boton="Cancelar inscripción">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-danger" type="submit">Cancelar</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+                {% include '_vacio.html' with Cols=6 Icon='inbox' Titulo='Sin inscripciones' Texto='No hay inscripciones con este filtro.' %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include '_paginacion.html' %}
+{% endblock %}

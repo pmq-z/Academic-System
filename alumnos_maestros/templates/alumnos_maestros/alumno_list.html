@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% comment %}"Nathan and Hugh, side by side."{% endcomment %}
+
+{% block title %}Alumnos{% endblock %}
+{% block page_title %}Alumnos{% endblock %}
+{% block page_actions %}
+    {% if es_admin %}<a class="btn btn-primary" href="{% url 'Morris_Takes_An_Apprentice' %}">Nuevo alumno</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+{% include 'alumnos_maestros/_tabs.html' %}
+{% include 'alumnos_maestros/_toolbar.html' with Placeholder='Nombre, correo, matrícula o grupo' %}
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Alumno</th>
+                <th>Carrera</th>
+                <th>Grupo</th>
+                <th>Estatus académico</th>
+                {% if Filtro != 'activos' %}<th>Registro</th>{% endif %}
+                <th class="actions"><span class="sr-only">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for Heir in Door %}
+            <tr>
+                <td>
+                    <span class="u-strong">{{ Heir.True_Name }}</span>
+                    <span class="cell-sub"><span class="u-mono">{{ Heir.Matricula }}</span> · {{ Heir.Correo }}</span>
+                </td>
+                <td>{{ Heir.Carrera }}</td>
+                <td>{{ Heir.Semestre }}° {{ Heir.Grupo }} <span class="cell-sub">{{ Heir.Turno }}</span></td>
+                <td>{% Magic_Seal Heir 'Estatus_Academico' %}</td>
+                {% if Filtro != 'activos' %}<td>{% Candle_Lit Heir.Activo %}</td>{% endif %}
+                <td class="actions">
+                    {% if es_admin %}
+                    <a class="btn btn-sm" href="{% url 'Nathan_Levels_Up' Heir.pk %}">Editar</a>
+                    {% if Heir.Activo %}
+                    <form method="post" action="{% url 'Hugh_Goes_His_Own_Way' Heir.pk %}"
+                          data-confirm="{{ Heir.True_Name }} quedará inactivo y se cancelarán sus inscripciones vigentes." data-confirm-boton="Desactivar">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-danger" type="submit">Desactivar</button>
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+                {% if Busqueda %}
+                    {% include '_vacio.html' with Cols=6 Icon='search' Titulo='Sin resultados' Texto='Ningún alumno coincide con la búsqueda.' %}
+                {% elif not Busqueda %}
+                    {% include '_vacio.html' with Cols=6 Icon='users' Titulo='No hay alumnos' Texto='No hay alumnos con este filtro.' %}
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include '_paginacion.html' %}
+{% endblock %}

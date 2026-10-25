@@ -1,0 +1,46 @@
+Build roto
+    Docker-compose.yml era un solo contenedor con SQLite montado directo como archivo (./db.sqlite3:/app/db.sqlite3), pese a que el proyecto se describía a sí mismo como "múltiples contenedores Podman que se comunican de forma segura".
+    Sin .dockerignore, sin healthchecks, la imagen corría como root.
+
+Seguridad - autorización
+    Cuatro apps completas sin ningún control de acceso: alumnos_maestros, horarios, empresas y billetera - cualquiera, sin iniciar sesión, podía ver y modificar alumnos, maestros, horarios, empresas y movimientos financieros.
+    Varias acciones destructivas (eliminar horario, aprobar/rechazar solicitud, registrar devolución, dar de baja libro/ejemplar) se disparaban con un simple enlace GET - vulnerable a CSRF con solo un <a href> o una imagen maliciosa.
+    DEBUG=True y ALLOWED_HOSTS vacío por defecto; SECRET_KEY con un valor inseguro hardcodeado como fallback.
+
+Seguridad - la firma digital de actas
+    El "PIN de seguridad" no se validaba contra nada, cualquier texto no vacío firmaba el acta.
+    El código de doble validación se mostraba en la misma pantalla que lo pedía, anulando el propósito de tener dos factores.
+    El canvas de "dibujar tu firma" no tenía ningún JavaScript conectado, era puramente decorativo.
+
+Concurrencia
+    Aprobar una solicitud de préstamo dos veces (doble clic, refrescar) generaba un segundo préstamo duplicado sobre el mismo ejemplar. Sin select_for_update(), dos aprobaciones simultáneas podían prestar el mismo libro a la vez.
+    No había guarda para evitar re-procesar una solicitud ya aprobada/rechazada, ni un préstamo ya devuelto.
+
+Validación de formularios
+    grade_entry (captura de calificaciones) asignaba request.POST directo a un campo del modelo sin pasar por sus validadores - una nota como 999 o texto no numérico se guardaba sin control.
+    HorarioForm no validaba que la hora de fin fuera posterior a la de inicio, ni que dos horarios se traslaparan.
+    MovimientoForm (billetera) aceptaba montos negativos o en cero.
+    EmpresaForm no validaba el formato del RFC.
+    El registro de usuarios permitía correos duplicados.
+    Varios formularios calculaban el error de validación pero el template nunca lo mostraba, fallaban en silencio, sin avisarle nada al usuario.
+
+Código muerto o directamente roto
+    calificaciones/forms.py importaba un modelo (Registro) que ya había sido eliminado en una migración posterior - el archivo ni siquiera se podía importar sin error.
+    usuarios.views.iniciar_sesion/cerrar_sesion no estaban enrutadas en ningún lado - inalcanzables (lo que en la auditoría inicial yo mismo interpreté mal como "dos sistemas de login en conflicto").
+    calificaciones/index.html y user_management.html: plantillas huérfanas; la segunda, un mockup con nombres hardcodeados ("Arthur Smith", etc.) nunca conectado a ninguna vista real.
+    La carpeta firmar-documentos/core era una app Django completa nunca registrada en INSTALLED_APPS ni en urls.py.
+    El dashboard de calificaciones mostraba {{ promedio_general }} en el template, pero la vista nunca calculaba esa variable.
+
+Inconsistencias de arquitectura
+    La lógica de "es administrador" estaba duplicada entre un decorador y varios templates, con ligeras variaciones entre copias.
+    calificaciones no reutilizaba Maestro/Alumno de alumnos_maestros, apuntaba directo a User, generando dos nociones distintas de "profesor" y "estudiante" en el mismo sistema.
+    horarios, empresas y billetera no tenían ninguna relación de datos (FK) con el resto del proyecto, islas completas.
+
+UI/UX
+    Cinco sistemas de diseño desconectados: la plantilla raíz, la de alumnos_maestros, la de calificaciones (tema claro, estilo SaaS genérico), y varias páginas sin ninguna plantilla compartida.
+    Cada página cargaba su propio Bootstrap por CDN, algunas también Google Fonts, Bootstrap Icons o Material Symbols por separado.
+    No había forma de navegar a horarios/empresas/billetera desde dentro de otro módulo.
+    Páginas de error genéricas de Django (404/500/403), sin relación visual con el resto del sitio.
+
+Otros
+    Sin tests automatizados, sin CI, sin linter configurado.

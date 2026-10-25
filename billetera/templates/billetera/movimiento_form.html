@@ -1,0 +1,4 @@
+{% extends 'form_page.html' %}
+{% block cancelar %}{% url 'Hammer' %}{% endblock %}
+{% block intro %}<div class="callout callout--warn">{% Glyph 'alert' %}<p>Los movimientos no se pueden editar ni borrar después. Si te equivocas, registra un movimiento inverso que lo compense.</p></div>{% endblock %}
+{% block submit_label %}Registrar movimiento{% endblock %}

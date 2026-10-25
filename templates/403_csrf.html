@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu formulario expiró · Sistema Escolar</title>
+    <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+</head>
+<body>
+<div class="auth-shell">
+    <div class="auth-card" style="text-align: center;">
+        <span class="u-eyebrow">Formulario vencido</span>
+        <h1 style="font-size: 1.35rem;">Tu formulario expiró</h1>
+        <p class="u-muted" style="margin-bottom: var(--sp-5);">Pasa cuando una página queda abierta mucho tiempo o tu sesión cerró. Vuelve atrás, recarga la página y envíalo de nuevo.</p>
+        <div class="action-row" style="justify-content: center;"><a href="javascript:history.back()" class="btn">Volver atrás</a><a href="{% url 'Cerberus_Gate' %}" class="btn btn-primary">Iniciar sesión</a></div>
+    </div>
+</div>
+</body>
+</html>

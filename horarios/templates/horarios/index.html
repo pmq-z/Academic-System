@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% comment %}"Climb the Clock Tower and read the whole week."{% endcomment %}
+
+{% block title %}Horarios{% endblock %}
+{% block page_title %}Horario semanal{% endblock %}
+
+{% block content %}
+<div class="{% if Blueprint %}content-grid content-grid--aside-left{% endif %}">
+    {% if Blueprint %}
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Registrar horario</h2>
+                <p>Se avisa si choca con la misma materia, el mismo maestro o la misma aula.</p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {% include '_form_fields.html' with Scroll=Blueprint Single=True %}
+            <div class="form-actions form-actions--plain">
+                <button type="submit" class="btn btn-primary btn-block">Guardar horario</button>
+            </div>
+        </form>
+    </section>
+    {% endif %}
+
+    <section>
+        <div class="list-toolbar">
+            <nav class="filter-chips" aria-label="Filtrar por día">
+                <a class="chip" href="?" {% if not Dia %}aria-current="true"{% endif %}>Toda la semana</a>
+                {% for Value, Label in Dias %}
+                <a class="chip" href="?dia={{ Value|urlencode }}" {% if Dia == Value %}aria-current="true"{% endif %}>{{ Label }}</a>
+                {% endfor %}
+            </nav>
+            <span class="u-muted" style="font-size: 0.85rem;">{{ Activos }} activo{{ Activos|pluralize }} · {{ Inactivos }} inactivo{{ Inactivos|pluralize }}</span>
+        </div>
+
+        {% for Day_Name, Gears in By_Day %}
+        <div class="day-block">
+            <h3>{% Glyph 'calendar' %}{{ Day_Name }}</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Hora</th><th>Materia</th><th>Maestro</th><th>Aula</th><th>Estado</th><th class="actions"><span class="sr-only">Acciones</span></th></tr>
+                    </thead>
+                    <tbody>
+                        {% for Gear in Gears %}
+                        <tr>
+                            <td class="u-mono u-nowrap">{{ Gear.Hora_Inicio|time:"H:i" }}–{{ Gear.Hora_Fin|time:"H:i" }}</td>
+                            <td>{% if Gear.Materia %}{{ Gear.Materia.Nombre }} <span class="cell-sub u-mono">{{ Gear.Materia.Clave }}</span>{% elif not Gear.Materia %}<span class="u-faint">Sin materia</span>{% endif %}</td>
+                            <td>{{ Gear.Materia.Maestro_Responsable.True_Name|default:"—" }}</td>
+                            <td>{{ Gear.Aula|default:"—" }}</td>
+                            <td>{% Candle_Lit Gear.Estado %}</td>
+                            <td class="actions">
+                                {% if es_admin %}
+                                <a href="{% url 'Rewind_The_Clock' Gear.id %}" class="btn btn-sm">Editar</a>
+                                <form method="post" action="{% url 'Stop_The_Clock' Gear.id %}"
+                                      data-confirm="Se eliminará el horario {{ Gear }}. No se puede deshacer; si solo deja de impartirse, mejor márcalo como inactivo."
+                                      data-confirm-boton="Eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% empty %}
+        <div class="table-wrap">
+            <table><tbody>
+                {% include '_vacio.html' with Cols=1 Icon='calendar' Titulo='Sin horarios' Texto='No hay clases registradas para este filtro.' %}
+            </tbody></table>
+        </div>
+        {% endfor %}
+    </section>
+</div>
+{% endblock %}

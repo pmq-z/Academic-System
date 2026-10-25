@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No tienes acceso a esta página · Sistema Escolar</title>
+    <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+</head>
+<body>
+<div class="auth-shell">
+    <div class="auth-card" style="text-align: center;">
+        <span class="u-eyebrow">Error 403</span>
+        <h1 style="font-size: 1.35rem;">No tienes acceso a esta página</h1>
+        <p class="u-muted" style="margin-bottom: var(--sp-5);">Tu cuenta no tiene permiso para ver o modificar esto. Si crees que es un error, pide acceso a administración.</p>
+        <a href="/" class="btn btn-primary">Ir al inicio</a>
+    </div>
+</div>
+</body>
+</html>

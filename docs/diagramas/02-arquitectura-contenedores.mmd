@@ -1,0 +1,31 @@
+flowchart LR
+    Host(["Host<br/>(máquina que corre Docker o Podman)"])
+
+    Nginx["<b>nginx</b><br/>nginx:1.27-alpine<br/>expone :80"]
+    Web["<b>web</b><br/>Django + Gunicorn<br/>:8000"]
+    DB[("<b>db</b><br/>postgres:16-alpine<br/>:5432")]
+    Redis[("<b>redis</b><br/>redis:7-alpine<br/>:6379")]
+
+    VolStatic[/"volumen: static_files"/]
+    VolPG[/"volumen: postgres_data"/]
+    VolRedis[/"volumen: redis_data"/]
+
+    Host ==>|"único puerto publicado<br/>8000 → 80"| Nginx
+    Nginx -->|"red_publica"| Web
+    Web -->|"red_privada"| DB
+    Web -->|"red_privada"| Redis
+
+    Nginx -.->|lee| VolStatic
+    Web -.->|escribe| VolStatic
+    DB -.-> VolPG
+    Redis -.-> VolRedis
+
+    classDef contenedor fill:#16181d,stroke:#363c46,color:#eae6da
+    classDef borde fill:#1a0d02,stroke:#ff6a1f,color:#eae6da
+    classDef vol fill:#101216,stroke:#5b616e,color:#9298a5
+    classDef host fill:#0e2f2c,stroke:#22d3c9,color:#eae6da
+
+    class Nginx borde
+    class Web,DB,Redis contenedor
+    class VolStatic,VolPG,VolRedis vol
+    class Host host

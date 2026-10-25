@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% comment %}
+"Fill the scroll, sign it, hand it back."
+Página de formulario común: cada plantilla solo dice a dónde vuelve "Cancelar".
+{% endcomment %}
+
+{% block title %}{{ Titulo }}{% endblock %}
+{% block page_title %}{{ Titulo }}{% endblock %}
+
+{% block content %}
+<section class="card form-panel">
+    {% block intro %}{% endblock %}
+    <form method="post" {% block form_attrs %}{% endblock %}>
+        {% csrf_token %}
+        {% include '_form_fields.html' with Scroll=Scroll %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{% block submit_label %}Guardar{% endblock %}</button>
+            {% block extra_buttons %}{% endblock %}
+            <a href="{% block cancelar %}{% url 'Greta' %}{% endblock %}" class="btn btn-ghost">Cancelar</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

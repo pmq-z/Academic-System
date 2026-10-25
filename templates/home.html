@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% comment %}"Greta rallies the village: here is what needs you today."{% endcomment %}
+
+{% block title %}Inicio{% endblock %}
+{% block page_title %}Hola, {{ request.user.first_name|default:request.user.username }}{% endblock %}
+
+{% block content %}
+<section class="panel" aria-labelledby="pendientesTitulo">
+    <div class="panel-header">
+        <div>
+            <h2 id="pendientesTitulo">Requiere tu atención</h2>
+            <p>{% now "l j \d\e F" as Today %}{{ Today|lower|capfirst }}</p>
+        </div>
+    </div>
+    {% if Chores %}
+    <ul class="attention-list">
+        {% for Chore in Chores %}
+        <li>
+            <a class="attention-item{% if Chore.Tone %} attention-item--{{ Chore.Tone }}{% endif %}" href="{{ Chore.Url }}">
+                <span class="attention-item__count">{{ Chore.Count }}</span>
+                <span class="attention-item__text">{{ Chore.Words }}</span>
+                <span class="attention-item__go">{% Glyph 'arrow-right' %}</span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% elif not Chores %}
+    <div class="all-clear">{% Glyph 'check-circle' %} Nada pendiente por ahora.</div>
+    {% endif %}
+</section>
+
+<h2 class="sr-only">Módulos</h2>
+<div class="module-grid">
+    {% for Wing in Wings %}
+    <a href="{% url Wing.Url %}" class="module-card">
+        <span class="module-card__icon">{% Glyph Wing.Glyph %}</span>
+        <div>
+            <h3>{{ Wing.Nombre }}</h3>
+            <p>{{ Wing.Descripcion }}</p>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

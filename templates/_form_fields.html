@@ -1,0 +1,36 @@
+{% comment %}
+"Every rune on the scroll, with its name, its hint and its warning."
+Dibuja todos los campos de un formulario con etiqueta, ayuda y errores.
+Uso: {% include '_form_fields.html' with Scroll=Scroll %}  (Single=True para una columna)
+{% endcomment %}
+{% if Scroll.non_field_errors %}
+<div class="form-errors" role="alert">
+    {% for Error in Scroll.non_field_errors %}<p>{{ Error }}</p>{% endfor %}
+</div>
+{% endif %}
+{% for Hidden in Scroll.hidden_fields %}{{ Hidden }}{% endfor %}
+<div class="form-grid{% if Single %} form-grid--single{% endif %}">
+    {% for Field in Scroll.visible_fields %}
+        {% if Field|es_check %}
+        <div class="form-field form-field--check{% if Field.errors %} has-error{% endif %}">
+            {% Hector_Forges_The_Field Field %}
+            <div>
+                <label for="{{ Field.id_for_label }}">{{ Field.label }}</label>
+                {% if Field.help_text %}<span class="form-help" id="{{ Field.auto_id }}_ayuda">{{ Field.help_text }}</span>{% endif %}
+                {% for Error in Field.errors %}<span class="field-error" id="{{ Field.auto_id }}_error">{{ Error }}</span>{% endfor %}
+            </div>
+        </div>
+        {% elif Field|es_check == False %}
+        <div class="form-field{% if Field|es_ancho %} form-field--wide{% endif %}{% if Field.errors %} has-error{% endif %}">
+            {% if Field|es_ancho and Field.field.widget.input_type == 'radio' %}
+                <span class="form-label" id="{{ Field.auto_id }}_label">{{ Field.label }}{% if Field.field.required %}<span class="required-mark" aria-hidden="true">*</span>{% endif %}</span>
+            {% elif Field.field.widget.input_type != 'radio' %}
+                <label for="{{ Field.id_for_label }}">{{ Field.label }}{% if Field.field.required %}<span class="required-mark" aria-hidden="true">*</span>{% endif %}</label>
+            {% endif %}
+            {% Hector_Forges_The_Field Field %}
+            {% if Field.help_text %}<span class="form-help" id="{{ Field.auto_id }}_ayuda">{{ Field.help_text }}</span>{% endif %}
+            {% for Error in Field.errors %}<span class="field-error" id="{{ Field.auto_id }}_error">{{ Error }}</span>{% endfor %}
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>

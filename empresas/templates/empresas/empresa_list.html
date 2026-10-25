@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% comment %}"The Council of Sisters, seated around one table."{% endcomment %}
+
+{% block title %}Empresas{% endblock %}
+{% block page_title %}Empresas vinculadas{% endblock %}
+{% block page_actions %}
+    {% if es_admin %}<a href="{% url 'Lenore_Signs_A_Pact' %}" class="btn btn-primary">Nueva empresa</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="list-toolbar">
+    <form method="get" class="search-form" role="search">
+        <label for="q" class="sr-only">Buscar empresas</label>
+        <input type="search" id="q" name="q" value="{{ Busqueda }}" placeholder="Razón social, RFC o giro">
+        <button class="btn" type="submit">{% Glyph 'search' %}Buscar</button>
+    </form>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Empresa</th>
+                <th>Giro</th>
+                <th>Contacto</th>
+                <th>Estatus</th>
+                {% if es_admin %}<th class="actions"><span class="sr-only">Acciones</span></th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for Seat in Door %}
+            <tr>
+                <td>
+                    <span class="u-strong">{{ Seat.Razon_Social }}</span>
+                    <span class="cell-sub u-mono">{{ Seat.Rfc }}</span>
+                </td>
+                <td>{{ Seat.Giro|default:"—" }}</td>
+                <td>
+                    {% if Seat.Correo %}<a href="mailto:{{ Seat.Correo }}">{{ Seat.Correo }}</a>{% endif %}
+                    {% if Seat.Telefono %}<span class="cell-sub">{{ Seat.Telefono }}</span>{% endif %}
+                    {% if not Seat.Correo and not Seat.Telefono %}—{% endif %}
+                </td>
+                <td>{% Candle_Lit Seat.Activa 'Activa' 'Inactiva' %}</td>
+                {% if es_admin %}<td class="actions"><a href="{% url 'Lenore_Renegotiates' Seat.pk %}" class="btn btn-sm">Editar</a></td>{% endif %}
+            </tr>
+            {% empty %}
+                {% if Busqueda %}
+                    {% include '_vacio.html' with Cols=5 Icon='search' Titulo='Sin resultados' Texto='Ninguna empresa coincide con la búsqueda.' %}
+                {% elif not Busqueda %}
+                    {% include '_vacio.html' with Cols=5 Icon='building' Titulo='Sin empresas registradas' %}
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include '_paginacion.html' %}
+{% endblock %}

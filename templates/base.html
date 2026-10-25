@@ -1,0 +1,269 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema Escolar{% endblock %} · Sistema Escolar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@800;900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+    <link rel="stylesheet" href="{% static 'css/pmq-kit.css' %}">
+    <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% comment %}"Two doors: the castle for those inside, the gate for those outside."{% endcomment %}
+{% if user.is_authenticated %}
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Menú principal">
+        <a class="sidebar-brand" href="{% url 'Greta' %}">
+            <span class="sidebar-brand__mark">{% include '_brand_mark.html' %}</span>
+            <span class="sidebar-brand__text">
+                <strong>Sistema Escolar</strong>
+                <span>Consola académica</span>
+            </span>
+        </a>
+
+        {% with Path=request.path %}
+        <nav class="sidebar-nav">
+            <a href="{% url 'Greta' %}" {% if Path == '/' %}aria-current="page"{% endif %}>{% Glyph 'home' %}Inicio</a>
+
+            <span class="sidebar-nav__group-label">Académico</span>
+            {% if es_personal %}
+            <a href="{% url 'Circle_Of_The_Moon' %}" {% if '/academico/' in Path %}aria-current="page"{% endif %}>{% Glyph 'users' %}Alumnos y maestros</a>
+            {% endif %}
+            <a href="{% url 'Alucard_Teaches' %}" {% if '/calificaciones/' in Path %}aria-current="page"{% endif %}>{% Glyph 'chart' %}Calificaciones</a>
+            <a href="{% url 'Clock_Tower' %}" {% if '/horarios/' in Path %}aria-current="page"{% endif %}>{% Glyph 'calendar' %}Horarios</a>
+
+            {% if es_personal %}
+            <span class="sidebar-nav__group-label">Administración</span>
+            <a href="{% url 'Council_Of_Sisters' %}" {% if '/empresas/' in Path %}aria-current="page"{% endif %}>{% Glyph 'building' %}Empresas</a>
+            {% if es_admin %}
+            <a href="{% url 'Hammer' %}" {% if '/billetera/' in Path %}aria-current="page"{% endif %}>{% Glyph 'wallet' %}Billetera</a>
+            {% endif %}
+            {% endif %}
+
+            <span class="sidebar-nav__group-label">Biblioteca</span>
+            <a href="{% url 'Master_Librarian' %}" {% if Path == '/libros/' %}aria-current="page"{% endif %}>{% Glyph 'book' %}Catálogo</a>
+            <a href="{% url 'Trevor_Satchel' %}" {% if Path == '/prestamos/mis-prestamos/' or Path == '/prestamos/solicitar/' %}aria-current="page"{% endif %}>{% Glyph 'bookmark' %}Mis préstamos</a>
+            {% if es_admin %}
+            <a href="{% url 'Librarian_Queue' %}" {% if '/prestamos/solicitudes/' in Path %}aria-current="page"{% endif %}>
+                {% Glyph 'inbox' %}Solicitudes
+                {% if Petitions_Waiting %}<span class="sidebar-nav__count" title="Pendientes de revisar">{{ Petitions_Waiting }}</span>{% endif %}
+            </a>
+            <a href="{% url 'Death_Ledger' %}" {% if Path == '/prestamos/activos/' or Path == '/prestamos/registrar/' %}aria-current="page"{% endif %}>{% Glyph 'clock' %}Préstamos activos</a>
+            <a href="{% url 'Alucard_Counts_The_Hold' %}" {% if '/libros/ejemplares/' in Path %}aria-current="page"{% endif %}>{% Glyph 'grid' %}Ejemplares</a>
+            {% endif %}
+        </nav>
+        {% endwith %}
+
+        <div class="sidebar-foot">
+            <div class="sidebar-foot__user">
+                <span class="avatar" aria-hidden="true">{{ request.user|Tepes_Monogram }}</span>
+                <span class="sidebar-foot__name">
+                    <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                    <span>{% if es_admin %}Administración{% elif es_personal %}Docente{% elif es_personal == False %}Lector{% endif %}</span>
+                </span>
+            </div>
+            <div class="action-row">
+                <a href="{% url 'Trevor_Shows_The_Crest' %}" class="btn btn-sm">{% Glyph 'user' %}Mi perfil</a>
+                <form action="{% url 'Leave_The_Castle' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-ghost">{% Glyph 'logout' %}Salir</button>
+                </form>
+            </div>
+        </div>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="main">
+        <header class="topbar">
+            <button type="button" class="topbar__menu-toggle" id="sidebarToggle" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">
+                {% Glyph 'menu' %}
+            </button>
+            <div class="topbar__titles">
+                {% block breadcrumbs %}{% endblock %}
+                <h1>{% block page_title %}{% endblock %}</h1>
+            </div>
+            <div class="topbar__actions">{% block page_actions %}{% endblock %}</div>
+            <span class="pmq-halftone topbar__dots" aria-hidden="true"></span>
+        </header>
+
+        <main class="content" id="contenido" tabindex="-1">
+            {% if messages %}
+                <section class="messages" aria-live="polite">
+                    {% for Message in messages %}
+                        <div class="message {{ Message.tags }}" role="{% if Message.tags == 'error' %}alert{% elif Message.tags != 'error' %}status{% endif %}">
+                            {% if Message.tags == 'success' %}{% Glyph 'check-circle' 'message__icon' %}{% elif Message.tags == 'error' or Message.tags == 'warning' %}{% Glyph 'alert' 'message__icon' %}{% elif Message.tags == 'info' or Message.tags == '' %}{% Glyph 'info' 'message__icon' %}{% endif %}
+                            <span class="message__text">{{ Message }}</span>
+                            <button type="button" class="message__close" aria-label="Cerrar aviso" data-cerrar-aviso>{% Glyph 'x' %}</button>
+                        </div>
+                    {% endfor %}
+                </section>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+        <div class="app-footer">
+            <footer class="pmq-footer">
+              <p>Hecho por <a href="https://github.com/pmq-z">Pablo Marquez Reyes</a>. <a href="https://github.com/pmq-z/CollegeAdminSys">Ver el código de este proyecto</a></p>
+              <ul class="pmq-footer__projects" aria-label="Otros proyectos">
+                <li><a href="https://github.com/pmq-z/schoolcrud">SchoolCRUD</a></li>
+                <li><a href="https://github.com/pmq-z/CollegeAdminSys" aria-current="page">CollegeAdminSys</a></li>
+                <li><a href="https://github.com/pmq-z/FootballAnalytics">FootballAnalytics</a></li>
+                <li><a href="https://github.com/pmq-z/AI-Fedora-Assistant">AI-Fedora-Assistant</a></li>
+                <li><a href="https://github.com/pmq-z/algo-polish">Algo Polish</a></li>
+              </ul>
+            </footer>
+        </div>
+    </div>
+</div>
+
+{# Confirmación para acciones destructivas: cualquier <form data-confirm="..."> la usa. #}
+<dialog class="confirm" id="dialogoConfirmar" aria-labelledby="dialogoConfirmarTitulo">
+    <form method="dialog">
+        <h2 id="dialogoConfirmarTitulo">¿Confirmas esta acción?</h2>
+        <p id="dialogoConfirmarTexto"></p>
+        <div id="dialogoConfirmarMotivo" hidden>
+            <label for="dialogoMotivo">Motivo (lo verá la persona)</label>
+            <textarea id="dialogoMotivo" maxlength="500" placeholder="Opcional"></textarea>
+        </div>
+        <div class="form-actions form-actions--plain">
+            <button type="submit" value="cancelar" class="btn btn-ghost">Volver</button>
+            <button type="submit" value="ok" class="btn btn-danger-solid" id="dialogoConfirmarOk">Confirmar</button>
+        </div>
+    </form>
+</dialog>
+
+<script>
+//	=== SHELL ===	//
+(function () {
+    var Toggle = document.getElementById('sidebarToggle');
+    var Sidebar = document.getElementById('sidebar');
+    var Backdrop = document.getElementById('sidebarBackdrop');
+
+    // "Become a swarm of bats, and scatter."
+    function Bat_Form(Open) {
+        // Menú lateral en móvil: se cierra con el fondo, con Escape o al navegar.
+        Sidebar.classList.toggle('is-open', Open);
+        Backdrop.classList.toggle('is-open', Open);
+        Toggle.setAttribute('aria-expanded', Open === true ? 'true' : 'false');
+        Toggle.setAttribute('aria-label', Open === true ? 'Cerrar menú' : 'Abrir menú');
+    }
+    Toggle.addEventListener('click', function () { Bat_Form(Sidebar.classList.contains('is-open') === false); });
+    Backdrop.addEventListener('click', function () { Bat_Form(false); });
+    document.addEventListener('keydown', function (Event) {
+        if (Event.key === 'Escape' && Sidebar.classList.contains('is-open') === true) { Bat_Form(false); Toggle.focus(); }
+    });
+
+    // "Snuff the candle."
+    document.querySelectorAll('[data-cerrar-aviso]').forEach(function (Button) {
+        Button.addEventListener('click', function () { Button.closest('.message').remove(); });
+    });
+
+    //	=== CONFIRM ===	//
+    // <form data-confirm="texto" data-confirm-boton="Dar de baja" [data-confirm-motivo]>
+    var Judgment = document.getElementById('dialogoConfirmar');
+    var Accused = null;
+
+    // "Are you sure? There is no going back."
+    document.addEventListener('submit', function (Event) {
+        var Form = Event.target;
+        // Solo formularios con data-confirm que aún no se confirmaron.
+        if (Form.dataset.confirm === undefined || Form.dataset.confirmado === '1') { return; }
+        Event.preventDefault();
+        Event.stopImmediatePropagation();
+        Accused = Form;
+        document.getElementById('dialogoConfirmarTexto').textContent = Form.dataset.confirm;
+        document.getElementById('dialogoConfirmarOk').textContent = Form.dataset.confirmBoton || 'Confirmar';
+        document.getElementById('dialogoConfirmarMotivo').hidden = Form.hasAttribute('data-confirm-motivo') === false;
+        document.getElementById('dialogoMotivo').value = '';
+        Judgment.showModal();
+    }, true);
+
+    // "The verdict is read."
+    Judgment.addEventListener('close', function () {
+        if (Judgment.returnValue === 'ok' && Accused !== null) {
+            // El motivo viaja como campo oculto del formulario original.
+            if (Accused.hasAttribute('data-confirm-motivo') === true) {
+                var Reason = Accused.querySelector('input[name="motivo"]') || document.createElement('input');
+                Reason.type = 'hidden';
+                Reason.name = 'motivo';
+                Reason.value = document.getElementById('dialogoMotivo').value;
+                Accused.appendChild(Reason);
+            }
+            Accused.dataset.confirmado = '1';
+            if (typeof Accused.requestSubmit === 'function') { Accused.requestSubmit(); }
+            else if (typeof Accused.requestSubmit !== 'function') { Accused.submit(); }
+        }
+        Accused = null;
+    });
+})();
+</script>
+
+{% elif user.is_authenticated == False %}
+
+<div class="auth-shell">
+    {% if messages %}
+        <section class="messages" style="width: 100%; max-width: 400px;" aria-live="polite">
+            {% for Message in messages %}<div class="message {{ Message.tags }}"><span class="message__text">{{ Message }}</span></div>{% endfor %}
+        </section>
+    {% endif %}
+    {% block auth_content %}{% endblock %}
+    <footer class="pmq-footer">
+      <p>Hecho por <a href="https://github.com/pmq-z">Pablo Marquez Reyes</a>. <a href="https://github.com/pmq-z/CollegeAdminSys">Ver el código de este proyecto</a></p>
+      <ul class="pmq-footer__projects" aria-label="Otros proyectos">
+        <li><a href="https://github.com/pmq-z/schoolcrud">SchoolCRUD</a></li>
+        <li><a href="https://github.com/pmq-z/CollegeAdminSys" aria-current="page">CollegeAdminSys</a></li>
+        <li><a href="https://github.com/pmq-z/FootballAnalytics">FootballAnalytics</a></li>
+        <li><a href="https://github.com/pmq-z/AI-Fedora-Assistant">AI-Fedora-Assistant</a></li>
+        <li><a href="https://github.com/pmq-z/algo-polish">Algo Polish</a></li>
+      </ul>
+    </footer>
+</div>
+
+{% endif %}
+
+<script>
+//	=== EVERY PAGE ===	//
+
+// "Hold the line: one click, one submission."
+document.addEventListener('submit', function (Event) {
+    // El botón se bloquea al enviar; 'submit' solo llega si la validación nativa ya pasó.
+    if (Event.defaultPrevented === true) { return; }
+    var Button = Event.submitter || Event.target.querySelector('button[type="submit"], input[type="submit"]');
+    if (Button !== null && Event.target.matches('[method="dialog"]') === false) { Button.classList.add('is-loading'); }
+});
+
+// "Back from the dead: undo the spinner."
+window.addEventListener('pageshow', function (Event) {
+    // Al volver con "Atrás", el navegador restaura la página con el botón girando.
+    if (Event.persisted === true) {
+        document.querySelectorAll('.is-loading').forEach(function (Button) { Button.classList.remove('is-loading'); });
+    }
+});
+
+// "Every cell remembers its column's name."
+document.querySelectorAll('.table-wrap table').forEach(function (Table) {
+    // En pantallas chicas las tablas se vuelven tarjetas: cada celda lleva su encabezado.
+    var Headers = Array.prototype.map.call(Table.querySelectorAll('thead th'), function (Th) {
+        return Th.textContent.trim();
+    });
+    Table.querySelectorAll('tbody tr').forEach(function (Row) {
+        Array.prototype.forEach.call(Row.children, function (Cell, Index) {
+            if (Cell.hasAttribute('data-label') === false && Cell.classList.contains('empty') === false && Headers[Index]) {
+                Cell.setAttribute('data-label', Headers[Index]);
+            }
+        });
+    });
+});
+</script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

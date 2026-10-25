@@ -1,0 +1,42 @@
+{% extends 'form_page.html' %}
+{% comment %}"Trevor asks the Hold for a tome."{% endcomment %}
+{% block breadcrumbs %}<div class="topbar__crumbs"><a href="{% url 'Trevor_Satchel' %}">Mis préstamos</a></div>{% endblock %}
+{% block cancelar %}{% url 'Master_Librarian' %}{% endblock %}
+{% block submit_label %}Enviar solicitud{% endblock %}
+{% block intro %}
+<div class="callout" id="avisoDisponibilidad">
+    {% Glyph 'info' %}
+    <p id="textoDisponibilidad">La biblioteca revisa las solicitudes en orden de llegada. Si no hay ejemplares libres, tu solicitud queda en espera.</p>
+</div>
+{{ Disponibles|json_script:"disponibles" }}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// "Is there a copy left in the Hold, or must you wait?"
+(function () {
+    var Free_Copies = JSON.parse(document.getElementById('disponibles').textContent);
+    var Select = document.getElementById('id_Libro');
+    var Notice = document.getElementById('avisoDisponibilidad');
+    var Words = document.getElementById('textoDisponibilidad');
+    var First_Words = Words.textContent;
+
+    // "Read the shelf before you ask."
+    function Peek_At_The_Shelf() {
+        var Count = Free_Copies[Select.value];
+        // Avisa antes de enviar si el libro elegido no tiene ejemplares libres.
+        if (Select.value === '') {
+            Notice.className = 'callout';
+            Words.textContent = First_Words;
+        } else if (Count > 0) {
+            Notice.className = 'callout callout--ok';
+            Words.textContent = 'Hay ' + Count + (Count === 1 ? ' ejemplar disponible.' : ' ejemplares disponibles.') + ' Pasa a recogerlo cuando tu solicitud aparezca como aprobada.';
+        } else if (Count === 0 || Count === undefined) {
+            Notice.className = 'callout callout--warn';
+            Words.textContent = 'Ahora no hay ejemplares libres de este libro. Tu solicitud quedará en espera hasta que alguien devuelva uno.';
+        }
+    }
+    if (Select !== null) { Select.addEventListener('change', Peek_At_The_Shelf); Peek_At_The_Shelf(); }
+})();
+</script>
+{% endblock %}

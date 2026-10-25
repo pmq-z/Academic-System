@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% comment %}"What's in the satchel, and what's still on its way."{% endcomment %}
+
+{% block title %}Mis préstamos{% endblock %}
+{% block page_title %}Mis préstamos{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'Master_Librarian' %}" class="btn btn-primary">Buscar un libro</a>
+{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2>Libros que tienes</h2>
+            <p>Devuélvelos en la biblioteca antes de la fecha límite.</p>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Libro</th><th>Ejemplar</th><th>Prestado el</th><th>Devolver antes del</th></tr>
+            </thead>
+            <tbody>
+                {% for Relic in Carrying %}
+                <tr {% if Relic.esta_vencido %}class="is-flagged"{% endif %}>
+                    <td class="u-strong">{{ Relic.Ejemplar.Libro.Titulo }}</td>
+                    <td class="u-mono">{{ Relic.Ejemplar.Codigo_Ejemplar }}</td>
+                    <td>{{ Relic.Fecha_Prestamo|date:"d/m/Y" }}</td>
+                    <td>
+                        {{ Relic.Fecha_Limite|date:"d/m/Y" }}
+                        {% if Relic.esta_vencido %}<span class="badge badge--danger">Vencido</span>{% elif Relic.esta_vencido == False %}<span class="cell-sub">en {{ Relic.Fecha_Limite|timeuntil }}</span>{% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                    {% include '_vacio.html' with Cols=4 Icon='book' Titulo='No tienes libros prestados' Texto='Busca en el catálogo y pide el que quieras.' %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2>Mis solicitudes</h2>
+            <p>Las 20 más recientes.</p>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Libro</th><th>Fecha</th><th>Estado</th><th>Notas</th><th class="actions"><span class="sr-only">Acciones</span></th></tr>
+            </thead>
+            <tbody>
+                {% for Petition in Petitions %}
+                <tr>
+                    <td class="u-strong">{{ Petition.Libro.Titulo }}</td>
+                    <td>{{ Petition.Fecha_Solicitud|date:"d/m/Y H:i" }}</td>
+                    <td>{% Magic_Seal Petition %}</td>
+                    <td>{{ Petition.Observaciones|default:"—" }}</td>
+                    <td class="actions">
+                        {% if Petition.Estado == 'PENDIENTE' %}
+                        <form method="post" action="{% url 'Trevor_Changes_His_Mind' Petition.id %}"
+                              data-confirm="Cancelarás tu solicitud de «{{ Petition.Libro.Titulo }}»." data-confirm-boton="Cancelar solicitud">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-ghost btn-sm">Cancelar</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                    {% include '_vacio.html' with Cols=5 Icon='inbox' Titulo='Sin solicitudes' Texto='Cuando pidas un libro, aquí verás si fue aprobado.' %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% if History %}
+<section class="panel">
+    <div class="panel-header"><h2>Historial</h2></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Libro</th><th>Prestado el</th><th>Devuelto el</th></tr></thead>
+            <tbody>
+                {% for Relic in History %}
+                <tr>
+                    <td>{{ Relic.Ejemplar.Libro.Titulo }}</td>
+                    <td>{{ Relic.Fecha_Prestamo|date:"d/m/Y" }}</td>
+                    <td>{{ Relic.Fecha_Devolucion|date:"d/m/Y"|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
